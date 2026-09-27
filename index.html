@@ -209,23 +209,24 @@ async function loadPhotos() {
 
     const files = await response.json();
 
-    people = files
-      .filter(file => {
-        const name = file.name.toLowerCase();
+   people = files
+  .filter(file => {
+    const name = file.name.toLowerCase();
 
-        return (
-          name.endsWith(".jpg") ||
-          name.endsWith(".jpeg") ||
-          name.endsWith(".png") ||
-          name.endsWith(".webp")
-        );
-      })
-      .map((file, index) => ({
-  id: index,
-  filename: file.name,
-  url: file.download_url,
-  name: names[index] || ""
-}));
+    return (
+      name.endsWith(".jpg") ||
+      name.endsWith(".jpeg") ||
+      name.endsWith(".png") ||
+      name.endsWith(".webp")
+    );
+  })
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((file, index) => ({
+    id: index,
+    filename: file.name,
+    url: file.download_url,
+    name: names[index] || ""
+  }));
 
     if (people.length === 0) {
       document.getElementById("loading").innerHTML =
