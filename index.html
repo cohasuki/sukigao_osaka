@@ -225,7 +225,7 @@ async function loadPhotos() {
     id: index,
     filename: file.name,
     url: file.download_url,
-    name: names[index] || ""
+    name: names[file.name] || ""
   }));
 
     if (people.length === 0) {
