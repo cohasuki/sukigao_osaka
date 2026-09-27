@@ -94,10 +94,6 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
-  background: #ccc;
-}
-
 #loading {
   text-align: center;
   padding: 50px 20px;
@@ -146,7 +142,7 @@ button:disabled {
 </header>
 
 <div id="loading">
-  写真を読み込んでいます…📸
+  写真と名前を読み込んでいます…📸
 </div>
 
 <div id="game" class="hidden">
@@ -156,15 +152,14 @@ button:disabled {
 
   <div id="photos" class="grid"></div>
 
-  <button id="nextButton" onclick="nextRound()">
+  <button id="nextButton">
     選択した人で進む♡
   </button>
 
 </div>
 
-
-
 <div id="ranking" class="hidden">
+
   <h2 style="text-align:center;color:#d86b9c;">
     ♡ 好き顔ランキング ♡
   </h2>
@@ -174,14 +169,19 @@ button:disabled {
   <button onclick="location.reload()">
     もう一度遊ぶ♡
   </button>
-</div>
 
-<script src="./names.js?v=2"></script>
+</div>
 
 <script>
 
+/* ==============================
+   基本設定
+============================== */
+
 const OWNER = "cohasuki";
 const REPO = "sukigao_osaka";
+
+let names = {};
 
 let people = [];
 let currentPeople = [];
@@ -193,153 +193,369 @@ let matchups = [];
 let matchupIndex = 0;
 let wins = {};
 
-/* GitHubから画像一覧を取得 */
+
+/* ==============================
+   names.jsを読み込む
+============================== */
+
+async function loadNames() {
+
+  const url =
+    `https://${OWNER}.github.io/${REPO}/names.js?v=${Date.now()}`;
+
+  const response = await fetch(url, {
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "名前データを読み込めませんでした"
+    );
+  }
+
+  const text = await response.text();
+
+  /*
+   * names.jsの
+   *
+   * const names = {
+   *   "写真ファイル名": "名前"
+   * };
+   *
+   * の部分を取得
+   */
+
+  const match =
+    text.match(
+      /const\s+names\s*=\s*(\{[\s\S]*\})\s*;?/
+    );
+
+  if (!match) {
+    throw new Error(
+      "names.jsの形式が正しくありません"
+    );
+  }
+
+  try {
+
+    names = Function(
+      `"use strict"; return (${match[1]});`
+    )();
+
+  } catch (error) {
+
+    throw new Error(
+      "names.jsのデータを解析できませんでした"
+    );
+
+  }
+
+}
+
+
+/* ==============================
+   写真を読み込む
+============================== */
+
 async function loadPhotos() {
 
   try {
 
-    const url =
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+    /* 名前データを先に読み込む */
 
-    const response = await fetch(url);
+    await loadNames();
+
+
+    /* GitHubから写真一覧を取得 */
+
+    const url =
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/?v=${Date.now()}`;
+
+    const response =
+      await fetch(url, {
+        cache: "no-store"
+      });
 
     if (!response.ok) {
-      throw new Error("GitHubから写真を取得できませんでした");
+
+      throw new Error(
+        "GitHubから写真を取得できませんでした"
+      );
+
     }
 
-    const files = await response.json();
+    const files =
+      await response.json();
 
-   people = files
-  .filter(file => {
-    const name = file.name.toLowerCase();
 
-    return (
-      name.endsWith(".jpg") ||
-      name.endsWith(".jpeg") ||
-      name.endsWith(".png") ||
-      name.endsWith(".webp")
-    );
-  })
-  .sort((a, b) => a.name.localeCompare(b.name))
-  .map((file, index) => ({
-    id: index,
-    filename: file.name,
-    url: file.download_url,
-    name: names[file.name] || ""
-  }));
+    /* 写真だけに絞る */
+
+    const photoFiles =
+      files
+        .filter(file => {
+
+          const filename =
+            file.name.toLowerCase();
+
+          return (
+            filename.endsWith(".jpg") ||
+            filename.endsWith(".jpeg") ||
+            filename.endsWith(".png") ||
+            filename.endsWith(".webp")
+          );
+
+        })
+        .sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+
+    /* 写真と名前を紐づける */
+
+    people =
+      photoFiles.map(
+        (file, index) => {
+
+          return {
+
+            id: index,
+
+            filename: file.name,
+
+            url: file.download_url,
+
+            name:
+              names[file.name] || ""
+
+          };
+
+        }
+      );
+
 
     if (people.length === 0) {
-      document.getElementById("loading").innerHTML =
-        "画像が見つかりませんでした🥲<br>写真の形式を確認してください。";
+
+      document.getElementById(
+        "loading"
+      ).innerHTML =
+        "画像が見つかりませんでした🥲<br>" +
+        "写真の形式を確認してください。";
+
       return;
+
     }
+
 
     startSelection();
 
+
   } catch (error) {
 
-    document.getElementById("loading").innerHTML =
-      "写真の読み込みに失敗しました🥲<br>" +
+    console.error(error);
+
+    document.getElementById(
+      "loading"
+    ).innerHTML =
+      "読み込みに失敗しました🥲<br><br>" +
       error.message;
+
   }
+
 }
 
 
-/* 予選開始 */
+/* ==============================
+   予選開始
+============================== */
+
 function startSelection() {
 
-  currentPeople = shuffle([...people]);
+  currentPeople =
+    shuffle([...people]);
+
   round = 1;
 
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+  document
+    .getElementById("loading")
+    .classList
+    .add("hidden");
+
+  document
+    .getElementById("game")
+    .classList
+    .remove("hidden");
 
   showRound();
+
 }
 
 
-/* 9人ずつ表示 */
+/* ==============================
+   予選
+============================== */
+
 function showRound() {
 
   selected = [];
 
-  document.getElementById("message").innerHTML =
-    `<b>予選 ${round}回目</b><br>
-    好きな人を何人でも選んでね♡※9人になるまで繰り返されます。9人未満の場合はエラーがおこります`;
+  window.roundSelected = [];
 
-  document.getElementById("progress").textContent =
+  document.getElementById(
+    "message"
+  ).innerHTML =
+    `<b>予選 ${round}回目</b><br>
+    好きな人を何人でも選んでね♡<br>
+    ※9人になるまで繰り返されます`;
+
+  document.getElementById(
+    "progress"
+  ).textContent =
     `残り ${currentPeople.length}人`;
 
-  const container = document.getElementById("photos");
-  container.innerHTML = "";
 
   const groups = [];
 
-  for (let i = 0; i < currentPeople.length; i += 9) {
-    groups.push(currentPeople.slice(i, i + 9));
+
+  for (
+    let i = 0;
+    i < currentPeople.length;
+    i += 9
+  ) {
+
+    groups.push(
+      currentPeople.slice(i, i + 9)
+    );
+
   }
 
-  /*
-   * 今回は最初の9人だけ表示。
-   * 次へ進むたびに次の9人を表示。
-   */
+
   showGroup(groups, 0);
+
 }
 
 
-/* グループ表示 */
-function showGroup(groups, groupIndex) {
+/* ==============================
+   9人ずつ表示
+============================== */
 
-  const container = document.getElementById("photos");
+function showGroup(
+  groups,
+  groupIndex
+) {
+
+  const container =
+    document.getElementById(
+      "photos"
+    );
+
   container.innerHTML = "";
 
-  const group = groups[groupIndex];
+
+  const group =
+    groups[groupIndex];
+
 
   group.forEach(person => {
 
-    const card = document.createElement("div");
-    card.className = "card";
+    const card =
+      document.createElement(
+        "div"
+      );
+
+    card.className =
+      "card";
+
 
     card.innerHTML = `
-      <img src="${person.url}" alt="候補">
-      <div class="number">${person.id + 1}</div>
+      <img
+        src="${person.url}"
+        alt="候補"
+      >
+      <div class="number">
+        ${person.id + 1}
+      </div>
     `;
+
 
     card.onclick = () => {
 
-      if (selected.includes(person.id)) {
+      if (
+        selected.includes(
+          person.id
+        )
+      ) {
 
-        selected = selected.filter(id => id !== person.id);
-        card.classList.remove("selected");
+        selected =
+          selected.filter(
+            id =>
+              id !== person.id
+          );
+
+        card.classList.remove(
+          "selected"
+        );
 
       } else {
 
-        selected.push(person.id);
-        card.classList.add("selected");
+        selected.push(
+          person.id
+        );
+
+        card.classList.add(
+          "selected"
+        );
 
       }
 
     };
 
+
     container.appendChild(card);
+
   });
 
-  const button = document.getElementById("nextButton");
+
+  const button =
+    document.getElementById(
+      "nextButton"
+    );
+
+
+  button.classList.remove(
+    "hidden"
+  );
+
 
   button.onclick = () => {
 
-    /*
-     * このグループで選んだ人を保存
-     */
     window.roundSelected =
-      (window.roundSelected || []).concat(
-        selected.map(id => people.find(p => p.id === id))
+      (
+        window.roundSelected ||
+        []
+      ).concat(
+
+        selected.map(
+          id =>
+            people.find(
+              p =>
+                p.id === id
+            )
+        )
+
       );
 
-    if (groupIndex + 1 < groups.length) {
+
+    if (
+      groupIndex + 1 <
+      groups.length
+    ) {
 
       selected = [];
-      showGroup(groups, groupIndex + 1);
+
+      showGroup(
+        groups,
+        groupIndex + 1
+      );
 
     } else {
 
@@ -348,79 +564,125 @@ function showGroup(groups, groupIndex) {
     }
 
   };
+
 }
 
 
-/* 1ラウンド終了 */
+/* ==============================
+   予選終了
+============================== */
+
 function finishSelection() {
 
-  const result = window.roundSelected || [];
+  const result =
+    window.roundSelected || [];
+
   window.roundSelected = [];
 
-  /*
-   * 9人になったら最終9人
-   */
-  if (result.length === 9) {
 
-    finalPeople = result;
+  /* 9人 */
+
+  if (
+    result.length === 9
+  ) {
+
+    finalPeople =
+      result;
+
     startFinal();
 
     return;
+
   }
 
-  /*
-   * 9人より多ければもう一度絞る
-   */
-  if (result.length > 9) {
 
-    currentPeople = shuffle(result);
+  /* 9人より多い */
+
+  if (
+    result.length > 9
+  ) {
+
+    currentPeople =
+      shuffle(result);
+
     round++;
 
     showRound();
 
     return;
-  }
-
-  /*
-   * 9人未満なら同じ候補でもう一度
-   */
-  if (result.length < 9) {
-
-    alert("9人未満だったので、もう一度選び直します♡");
-
-    currentPeople = shuffle(currentPeople);
-    round++;
-
-    showRound();
 
   }
+
+
+  /* 9人未満 */
+
+  alert(
+    "9人未満だったので、もう一度選び直します♡"
+  );
+
+  currentPeople =
+    shuffle(currentPeople);
+
+  round++;
+
+  showRound();
+
 }
 
 
-/* 最終9人の36試合 */
+/* ==============================
+   最終決戦
+============================== */
+
 function startFinal() {
 
-  document.getElementById("message").innerHTML =
-    "<b>最終決戦♡</b><br>どちらの顔が好き？";
+  document.getElementById(
+    "message"
+  ).innerHTML =
+    "<b>最終決戦♡</b><br>" +
+    "どちらの顔が好き？";
 
-  document.getElementById("progress").textContent =
+
+  document.getElementById(
+    "progress"
+  ).textContent =
     "全36回";
 
-  document.getElementById("photos").className = "grid";
 
-  document.getElementById("nextButton").classList.add("hidden");
+  document
+    .getElementById(
+      "nextButton"
+    )
+    .classList
+    .add("hidden");
+
 
   wins = {};
 
-  finalPeople.forEach(person => {
-    wins[person.id] = 0;
-  });
+
+  finalPeople.forEach(
+    person => {
+
+      wins[person.id] = 0;
+
+    }
+  );
+
 
   matchups = [];
 
-  for (let i = 0; i < finalPeople.length; i++) {
 
-    for (let j = i + 1; j < finalPeople.length; j++) {
+  for (
+    let i = 0;
+    i < finalPeople.length;
+    i++
+  ) {
+
+    for (
+      let j = i + 1;
+      j < finalPeople.length;
+      j++
+    ) {
 
       matchups.push([
         finalPeople[i],
@@ -428,110 +690,226 @@ function startFinal() {
       ]);
 
     }
+
   }
+
 
   matchupIndex = 0;
 
   showMatchup();
+
 }
 
 
-/* 2人比較 */
+/* ==============================
+   2人比較
+============================== */
+
 function showMatchup() {
 
-  if (matchupIndex >= matchups.length) {
+  if (
+    matchupIndex >=
+    matchups.length
+  ) {
 
     showRanking();
 
     return;
+
   }
 
-  const [a, b] = matchups[matchupIndex];
 
-  document.getElementById("progress").textContent =
+  const [
+    a,
+    b
+  ] =
+    matchups[
+      matchupIndex
+    ];
+
+
+  document.getElementById(
+    "progress"
+  ).textContent =
     `${matchupIndex + 1} / ${matchups.length}`;
 
-  const container = document.getElementById("photos");
+
+  const container =
+    document.getElementById(
+      "photos"
+    );
 
   container.innerHTML = "";
 
-  [a, b].forEach(person => {
 
-    const card = document.createElement("div");
-    card.className = "card";
+  [a, b].forEach(
+    person => {
 
-    card.innerHTML = `
-      <img src="${person.url}" alt="候補">
-      <div class="number">どっちが好き？</div>
-    `;
+      const card =
+        document.createElement(
+          "div"
+        );
 
-    card.onclick = () => {
+      card.className =
+        "card";
 
-      wins[person.id]++;
 
-      matchupIndex++;
+      card.innerHTML = `
+        <img
+          src="${person.url}"
+          alt="候補"
+        >
+        <div class="number">
+          どっちが好き？
+        </div>
+      `;
 
-      showMatchup();
 
-    };
+      card.onclick = () => {
 
-    container.appendChild(card);
+        wins[person.id]++;
 
-  });
+        matchupIndex++;
+
+        showMatchup();
+
+      };
+
+
+      container.appendChild(
+        card
+      );
+
+    }
+  );
+
 }
 
 
-/* ランキング */
+/* ==============================
+   ランキング
+============================== */
+
 function showRanking() {
 
-  document.getElementById("game").classList.add("hidden");
-  document.getElementById("ranking").classList.remove("hidden");
+  document
+    .getElementById(
+      "game"
+    )
+    .classList
+    .add("hidden");
 
-  const ranking = [...finalPeople].sort(
-    (a, b) => wins[b.id] - wins[a.id]
-  );
 
-  const list = document.getElementById("rankingList");
+  document
+    .getElementById(
+      "ranking"
+    )
+    .classList
+    .remove("hidden");
+
+
+  const ranking =
+    [...finalPeople].sort(
+      (a, b) =>
+        wins[b.id] -
+        wins[a.id]
+    );
+
+
+  const list =
+    document.getElementById(
+      "rankingList"
+    );
 
   list.innerHTML = "";
 
-  ranking.forEach((person, index) => {
 
-    const item = document.createElement("div");
+  ranking.forEach(
+    (person, index) => {
 
-    item.className = "rank-item";
+      const item =
+        document.createElement(
+          "div"
+        );
 
-    item.innerHTML = `
-      <div class="rank-number">${index + 1}</div>
-      <img src="${person.url}">
-      <div>
-        <b>${person.name || "名前未登録"}</b><br>
-        ${wins[person.id]}勝
-      </div>
-    `;
+      item.className =
+        "rank-item";
 
-    list.appendChild(item);
 
-  });
+      item.innerHTML = `
+        <div class="rank-number">
+          ${index + 1}
+        </div>
+
+        <img
+          src="${person.url}"
+          alt="候補"
+        >
+
+        <div>
+
+          <b>
+            ${
+              person.name ||
+              "名前未登録"
+            }
+          </b>
+
+          <br>
+
+          ${wins[person.id]}勝
+
+        </div>
+      `;
+
+
+      list.appendChild(
+        item
+      );
+
+    }
+  );
+
 }
 
 
-/* シャッフル */
+/* ==============================
+   シャッフル
+============================== */
+
 function shuffle(array) {
 
-  for (let i = array.length - 1; i > 0; i--) {
+  for (
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ) {
 
-    const j = Math.floor(Math.random() * (i + 1));
+    const j =
+      Math.floor(
+        Math.random() *
+        (i + 1)
+      );
 
-    [array[i], array[j]] =
-      [array[j], array[i]];
+
+    [
+      array[i],
+      array[j]
+    ] = [
+      array[j],
+      array[i]
+    ];
+
   }
 
   return array;
+
 }
 
 
-
+/* ==============================
+   開始
+============================== */
 
 loadPhotos();
 
