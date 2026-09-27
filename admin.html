@@ -9,7 +9,8 @@
 body {
   margin: 0;
   padding: 20px;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", sans-serif;
   background: #fff7fb;
   color: #444;
 }
@@ -17,6 +18,18 @@ body {
 h1 {
   text-align: center;
   color: #d86b9c;
+}
+
+.description {
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+#loading {
+  text-align: center;
+  padding: 40px 10px;
 }
 
 #list {
@@ -32,6 +45,7 @@ h1 {
   margin: 8px 0;
   padding: 8px;
   border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .item img {
@@ -39,10 +53,20 @@ h1 {
   height: 70px;
   object-fit: cover;
   border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.number {
+  width: 25px;
+  text-align: center;
+  color: #aaa;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 
 .item input {
   flex: 1;
+  min-width: 0;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -61,11 +85,39 @@ button {
   font-weight: bold;
 }
 
+button:active {
+  opacity: 0.8;
+}
+
 textarea {
+  display: block;
   width: 100%;
-  height: 300px;
+  max-width: 700px;
+  height: 350px;
+  margin: 20px auto;
   box-sizing: border-box;
   padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  background: white;
+}
+
+#count {
+  text-align: center;
+  color: #888;
+  margin: 10px;
+}
+
+.note {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 12px;
+  background: #fff0f6;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
 }
 </style>
 </head>
@@ -74,9 +126,15 @@ textarea {
 
 <h1>♡ 名前登録 ♡</h1>
 
+<div class="description">
+  写真ごとに名前を入力してください
+</div>
+
 <div id="loading">
   写真と名前を読み込んでいます…📸
 </div>
+
+<div id="count"></div>
 
 <div id="list"></div>
 
@@ -86,10 +144,20 @@ textarea {
 
 <textarea
   id="result"
-  placeholder="ここに作成されたデータが表示されます"
+  placeholder="「名前データを作成♡」を押すとここにデータが出ます"
 ></textarea>
 
+<div class="note">
+  💡 ここで作ったデータをコピーして、GitHubの
+  <b>names.js</b> に貼り替えてください。
+</div>
+
+
 <script>
+
+/* ==============================
+   基本設定
+============================== */
 
 const OWNER = "cohasuki";
 const REPO = "sukigao_osaka";
@@ -97,135 +165,243 @@ const REPO = "sukigao_osaka";
 let people = [];
 let oldNames = {};
 
+
+/* ==============================
+   最新の名前データを読み込む
+============================== */
+
+async function loadOldNames() {
+
+  try {
+
+    const namesUrl =
+      `https://${OWNER}.github.io/${REPO}/names.js?v=${Date.now()}`;
+
+    const response =
+      await fetch(
+        namesUrl,
+        {
+          cache: "no-store"
+        }
+      );
+
+    if (!response.ok) {
+      return;
+    }
+
+    const text =
+      await response.text();
+
+
+    /*
+     * 現在の形式
+     *
+     * const names = {
+     *   "写真.jpg": "名前"
+     * };
+     */
+
+    const match =
+      text.match(
+        /const\s+names\s*=\s*(\{[\s\S]*\})\s*;?/
+      );
+
+
+    if (!match) {
+      return;
+    }
+
+
+    try {
+
+      oldNames =
+        Function(
+          `"use strict"; return (${match[1]});`
+        )();
+
+    } catch (error) {
+
+      console.log(
+        "名前データの解析に失敗しました",
+        error
+      );
+
+      oldNames = {};
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "以前の名前データを読み込めませんでした",
+      error
+    );
+
+    oldNames = {};
+
+  }
+
+}
+
+
+/* ==============================
+   写真一覧を読み込む
+============================== */
+
 async function loadPhotos() {
 
   try {
 
-    /* 写真一覧 */
+    /*
+     * ① 最新の名前データを取得
+     */
+
+    await loadOldNames();
+
+
+    /*
+     * ② GitHubから最新の写真一覧を取得
+     */
+
     const photoUrl =
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/?v=${Date.now()}`;
 
-    const photoResponse = await fetch(photoUrl);
-    const files = await photoResponse.json();
 
-    people = files
-      .filter(file => {
-
-        const name = file.name.toLowerCase();
-
-        return (
-          name.endsWith(".jpg") ||
-          name.endsWith(".jpeg") ||
-          name.endsWith(".png") ||
-          name.endsWith(".webp")
-        );
-
-      })
-      .sort((a, b) =>
-        a.name.localeCompare(b.name)
+    const photoResponse =
+      await fetch(
+        photoUrl,
+        {
+          cache: "no-store"
+        }
       );
 
 
-    /* 今までの名前データ */
-    try {
+    if (!photoResponse.ok) {
 
-      const namesUrl =
-        `https://cohasuki.github.io/sukigao_osaka/names.js`;
-
-      const namesResponse = await fetch(namesUrl);
-      const namesText = await namesResponse.text();
-
-      /*
-       * 新しい形式
-       * const names = {
-       *   "写真.jpg": "名前"
-       * }
-       */
-      if (namesText.includes("const names = {")) {
-
-        const match =
-          namesText.match(/const names\s*=\s*(\{[\s\S]*\});/);
-
-        if (match) {
-          oldNames = Function(
-            `"use strict"; return (${match[1]})`
-          )();
-        }
-
-      }
-
-      /*
-       * 今までの形式
-       * const names = [
-       *   "名前1",
-       *   "名前2"
-       * ]
-       *
-       * 現在の写真順と対応させる
-       */
-      else {
-
-        const match =
-          namesText.match(/const names\s*=\s*(\[[\s\S]*\]);/);
-
-        if (match) {
-
-          const oldArray = Function(
-            `"use strict"; return (${match[1]})`
-          )();
-
-          oldArray.forEach((name, index) => {
-
-            if (people[index]) {
-              oldNames[people[index].name] = name;
-            }
-
-          });
-
-        }
-
-      }
-
-    } catch (error) {
-
-      console.log("以前の名前データを読み込めませんでした", error);
+      throw new Error(
+        "GitHubから写真を取得できませんでした"
+      );
 
     }
 
 
-    const list = document.getElementById("list");
+    const files =
+      await photoResponse.json();
 
-    document.getElementById("loading").remove();
+
+    /*
+     * ③ 写真だけにする
+     */
+
+    people =
+      files
+        .filter(file => {
+
+          const filename =
+            file.name.toLowerCase();
+
+          return (
+            filename.endsWith(".jpg") ||
+            filename.endsWith(".jpeg") ||
+            filename.endsWith(".png") ||
+            filename.endsWith(".webp")
+          );
+
+        })
+        .sort(
+          (a, b) =>
+            a.name.localeCompare(b.name)
+        );
 
 
-    people.forEach((person, index) => {
+    /*
+     * ④ 表示
+     */
 
-      const item = document.createElement("div");
+    const loading =
+      document.getElementById(
+        "loading"
+      );
 
-      item.className = "item";
+    loading.remove();
 
-      item.innerHTML = `
-        <img src="${person.download_url}">
 
-        <span>${index + 1}</span>
+    document.getElementById(
+      "count"
+    ).textContent =
+      `現在 ${people.length}人の写真`;
 
-        <input
-          type="text"
-          class="personName"
-          placeholder="名前"
-          value="${oldNames[person.name] || ""}"
-          data-filename="${person.name}"
-        >
-      `;
 
-      list.appendChild(item);
+    const list =
+      document.getElementById(
+        "list"
+      );
 
-    });
+
+    list.innerHTML = "";
+
+
+    people.forEach(
+      (person, index) => {
+
+        const item =
+          document.createElement(
+            "div"
+          );
+
+
+        item.className =
+          "item";
+
+
+        /*
+         * ファイル名をキーにして
+         * 以前の名前を取得
+         */
+
+        const savedName =
+          oldNames[person.name] || "";
+
+
+        item.innerHTML = `
+
+          <img
+            src="${person.download_url}"
+            alt=""
+          >
+
+          <div class="number">
+            ${index + 1}
+          </div>
+
+          <input
+            type="text"
+            class="personName"
+            placeholder="名前"
+            value="${escapeHtml(savedName)}"
+            data-filename="${escapeHtml(person.name)}"
+          >
+
+        `;
+
+
+        list.appendChild(
+          item
+        );
+
+      }
+    );
+
 
   } catch (error) {
 
-    document.getElementById("loading").innerHTML =
-      "写真の読み込みに失敗しました🥲<br>" +
+    console.error(error);
+
+
+    document.getElementById(
+      "loading"
+    ).innerHTML =
+      "写真の読み込みに失敗しました🥲<br><br>" +
       error.message;
 
   }
@@ -233,32 +409,87 @@ async function loadPhotos() {
 }
 
 
-function makeNames() {
+/* ==============================
+   HTML用エスケープ
+============================== */
 
-  const inputs =
-    document.querySelectorAll(".personName");
+function escapeHtml(text) {
 
-  const names = {};
-
-  inputs.forEach(input => {
-
-    const filename =
-      input.dataset.filename;
-
-    const name =
-      input.value.trim();
-
-    names[filename] = name;
-
-  });
-
-  const code =
-    `const names = ${JSON.stringify(names, null, 2)};`;
-
-  document.getElementById("result").value = code;
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
 }
 
+
+/* ==============================
+   names.jsを作成
+============================== */
+
+function makeNames() {
+
+  const inputs =
+    document.querySelectorAll(
+      ".personName"
+    );
+
+
+  const names = {};
+
+
+  inputs.forEach(
+    input => {
+
+      const filename =
+        input.dataset.filename;
+
+
+      const name =
+        input.value.trim();
+
+
+      names[filename] =
+        name;
+
+    }
+  );
+
+
+  const code =
+    `const names = ${JSON.stringify(
+      names,
+      null,
+      2
+    )};`;
+
+
+  document.getElementById(
+    "result"
+  ).value =
+    code;
+
+
+  /*
+   * コピーしやすいように
+   * テキストエリアを選択
+   */
+
+  document.getElementById(
+    "result"
+  ).focus();
+
+  document.getElementById(
+    "result"
+  ).select();
+
+}
+
+
+/* ==============================
+   開始
+============================== */
 
 loadPhotos();
 
