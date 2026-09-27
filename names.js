@@ -1,6 +1,7 @@
 const names = {
   "04794C10-D19D-4BF5-B3A1-E38A8F1FAFE5.jpeg": "香花（ネテルダイヤ）",
   "0A595EA7-1600-4B09-AD25-CF4ECCD264C4.jpeg": "神照美琴（ネテルダイヤ）",
+  "174399FE-AF69-4DFE-AE12-D384D7DC9463.jpeg": "つむぎせな（マイフェアガ→ル）",
   "356589D6-F43A-4529-BA90-BF9FAFD1458B.jpeg": "あおいるあ（SKILL of light）",
   "3F0E0820-0A77-467B-800B-9120C446C33A.jpeg": "朱城すみれ（SKILL of light）",
   "4016B137-01A4-4179-92A3-0A37EC5FF21C.jpeg": "大浜唯奈（リリシック学園）",
@@ -8,11 +9,14 @@ const names = {
   "4BC5EDD6-746F-4491-B45E-BD804EC97DA8.jpeg": "常磐いつか（SKILL of light）",
   "527E60D9-7CC2-41FC-AAE4-1A899A9B6205.jpeg": "月城うい（ネテルダイヤ）",
   "6AE52C17-1EC1-4198-9513-B7F6F699CBBA.jpeg": "神田莉緒（妖狐繚乱）",
+  "70C131CF-5757-4588-A0E1-7BF8A3836B01.jpeg": "こいしろみゆ（マイフェアガ→ル）",
   "72DACAF1-84C2-4A15-B9F1-70C666BD6081.jpeg": "一ノ瀬なこ（ネテルダイヤ）",
   "7677EB85-B2C3-4600-8311-1C64EB38B150.jpeg": "山田あえら（ネテルダイヤ）",
   "99A89773-05E7-4518-9DDC-E03CDD641790.jpeg": "紅葉まろ（妖狐繚乱）",
   "9A7C4AB2-1D1E-40EC-B306-F0A66AEE3E4D.jpeg": "佐補゜人（妖狐繚乱）",
+  "A615EA02-5B2A-4462-9DA0-8ADF87D1D244.jpeg": "なせばなる（マイフェアガ→ル）",
   "CB634972-E571-443F-8208-C583FBAEBDEF.jpeg": "五十嵐愛星（SKILL of light）",
   "D8F9E137-981C-48FD-887E-34B65496D68C.jpeg": "りるれらん（ネテルダイヤ）",
-  "E555638A-B16A-4FF1-958A-C8718E95B2D3.jpeg": "柚希紗良（ネテルダイヤ）"
+  "E555638A-B16A-4FF1-958A-C8718E95B2D3.jpeg": "柚希紗良（ネテルダイヤ）",
+  "FFBED97E-2A8D-4F2B-9C38-EC6B5807CB8D.jpeg": "ことりのあ（マイフェアガ→ル）"
 };
