@@ -3,6 +3,7 @@ const names = {
   "0A595EA7-1600-4B09-AD25-CF4ECCD264C4.jpeg": "神照美琴（ネテルダイヤ）",
   "356589D6-F43A-4529-BA90-BF9FAFD1458B.jpeg": "あおいるあ（SKILL of light）",
   "3F0E0820-0A77-467B-800B-9120C446C33A.jpeg": "朱城すみれ（SKILL of light）",
+  "4016B137-01A4-4179-92A3-0A37EC5FF21C.jpeg": "大浜唯奈（リリシック学園）",
   "4A908A01-BB10-41F2-A02C-67D570D9119F.jpeg": "園ノ姫なにゃ（妖狐繚乱）",
   "4BC5EDD6-746F-4491-B45E-BD804EC97DA8.jpeg": "常磐いつか（SKILL of light）",
   "527E60D9-7CC2-41FC-AAE4-1A899A9B6205.jpeg": "月城うい（ネテルダイヤ）",
