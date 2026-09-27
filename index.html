@@ -144,7 +144,12 @@ button:disabled {
 <header>
   <h1>♡ 好き顔大阪9選 ♡</h1>
 </header>
-
+<button
+  onclick="openNameEditor()"
+  style="margin:10px auto;"
+>
+  📝 名前を登録
+</button>
 <div id="loading">
   写真を読み込んでいます…📸
 </div>
@@ -159,6 +164,32 @@ button:disabled {
   <button id="nextButton" onclick="nextRound()">
     選択した人で進む♡
   </button>
+
+</div>
+
+<div id="nameEditor" class="hidden">
+
+  <h2 style="text-align:center;color:#d86b9c;">
+    ♡ 名前登録 ♡
+  </h2>
+
+  <div id="nameList"></div>
+
+  <button onclick="generateNames()">
+    名前データを作成♡
+  </button>
+
+  <textarea
+    id="generatedNames"
+    style="
+      width:90%;
+      height:300px;
+      display:block;
+      margin:20px auto;
+      padding:10px;
+    "
+    placeholder="ここに名前データが出ます"
+  ></textarea>
 
 </div>
 
@@ -525,10 +556,93 @@ function shuffle(array) {
   return array;
 }
 
+function openNameEditor() {
+
+  document.getElementById("game")
+    .classList.add("hidden");
+
+  document.getElementById("nameEditor")
+    .classList.remove("hidden");
+
+  const list =
+    document.getElementById("nameList");
+
+  list.innerHTML = "";
+
+  people.forEach((person, index) => {
+
+    const item =
+      document.createElement("div");
+
+    item.style.cssText = `
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:white;
+      margin:8px;
+      padding:8px;
+      border-radius:12px;
+    `;
+
+    item.innerHTML = `
+      <img
+        src="${person.url}"
+        style="
+          width:70px;
+          height:70px;
+          object-fit:cover;
+          border-radius:10px;
+        "
+      >
+
+      <span>${index + 1}</span>
+
+      <input
+        type="text"
+        class="personName"
+        data-index="${index}"
+        placeholder="名前"
+        style="
+          flex:1;
+          padding:10px;
+          border:1px solid #ddd;
+          border-radius:8px;
+        "
+      >
+    `;
+
+    list.appendChild(item);
+
+  });
+}
+
+
+function generateNames() {
+
+  const inputs =
+    document.querySelectorAll(".personName");
+
+  const result = [];
+
+  inputs.forEach(input => {
+    result.push(input.value.trim());
+  });
+
+  const code =
+    `const names = ${JSON.stringify(result, null, 2)};`;
+
+  document.getElementById("generatedNames")
+    .value = code;
+
+}
+
+
 loadPhotos();
 
 </script>
-<script src="names.js"></script>
+
+</body>
+</html>
   
 </body>
 </html>
