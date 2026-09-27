@@ -75,7 +75,7 @@ textarea {
 <h1>♡ 名前登録 ♡</h1>
 
 <div id="loading">
-  写真を読み込んでいます…📸
+  写真と名前を読み込んでいます…📸
 </div>
 
 <div id="list"></div>
@@ -95,58 +95,140 @@ const OWNER = "cohasuki";
 const REPO = "sukigao_osaka";
 
 let people = [];
+let oldNames = {};
 
 async function loadPhotos() {
 
-  const url =
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+  try {
 
-  const response = await fetch(url);
-  const files = await response.json();
+    /* 写真一覧 */
+    const photoUrl =
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
 
-  people = files
-    .filter(file => {
+    const photoResponse = await fetch(photoUrl);
+    const files = await photoResponse.json();
 
-      const name = file.name.toLowerCase();
+    people = files
+      .filter(file => {
 
-      return (
-        name.endsWith(".jpg") ||
-        name.endsWith(".jpeg") ||
-        name.endsWith(".png") ||
-        name.endsWith(".webp")
+        const name = file.name.toLowerCase();
+
+        return (
+          name.endsWith(".jpg") ||
+          name.endsWith(".jpeg") ||
+          name.endsWith(".png") ||
+          name.endsWith(".webp")
+        );
+
+      })
+      .sort((a, b) =>
+        a.name.localeCompare(b.name)
       );
 
-    })
-    .sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
 
-  const list = document.getElementById("list");
+    /* 今までの名前データ */
+    try {
 
-  document.getElementById("loading").remove();
+      const namesUrl =
+        `https://cohasuki.github.io/sukigao_osaka/names.js`;
 
-  people.forEach((person, index) => {
+      const namesResponse = await fetch(namesUrl);
+      const namesText = await namesResponse.text();
 
-    const item = document.createElement("div");
+      /*
+       * 新しい形式
+       * const names = {
+       *   "写真.jpg": "名前"
+       * }
+       */
+      if (namesText.includes("const names = {")) {
 
-    item.className = "item";
+        const match =
+          namesText.match(/const names\s*=\s*(\{[\s\S]*\});/);
 
-    item.innerHTML = `
-      <img src="${person.download_url}">
+        if (match) {
+          oldNames = Function(
+            `"use strict"; return (${match[1]})`
+          )();
+        }
 
-      <span>${index + 1}</span>
+      }
 
-      <input
-        type="text"
-        class="personName"
-        placeholder="名前"
-        data-index="${index}"
-      >
-    `;
+      /*
+       * 今までの形式
+       * const names = [
+       *   "名前1",
+       *   "名前2"
+       * ]
+       *
+       * 現在の写真順と対応させる
+       */
+      else {
 
-    list.appendChild(item);
+        const match =
+          namesText.match(/const names\s*=\s*(\[[\s\S]*\]);/);
 
-  });
+        if (match) {
+
+          const oldArray = Function(
+            `"use strict"; return (${match[1]})`
+          )();
+
+          oldArray.forEach((name, index) => {
+
+            if (people[index]) {
+              oldNames[people[index].name] = name;
+            }
+
+          });
+
+        }
+
+      }
+
+    } catch (error) {
+
+      console.log("以前の名前データを読み込めませんでした", error);
+
+    }
+
+
+    const list = document.getElementById("list");
+
+    document.getElementById("loading").remove();
+
+
+    people.forEach((person, index) => {
+
+      const item = document.createElement("div");
+
+      item.className = "item";
+
+      item.innerHTML = `
+        <img src="${person.download_url}">
+
+        <span>${index + 1}</span>
+
+        <input
+          type="text"
+          class="personName"
+          placeholder="名前"
+          value="${oldNames[person.name] || ""}"
+          data-filename="${person.name}"
+        >
+      `;
+
+      list.appendChild(item);
+
+    });
+
+  } catch (error) {
+
+    document.getElementById("loading").innerHTML =
+      "写真の読み込みに失敗しました🥲<br>" +
+      error.message;
+
+  }
 
 }
 
@@ -156,10 +238,18 @@ function makeNames() {
   const inputs =
     document.querySelectorAll(".personName");
 
-  const names = [];
+  const names = {};
 
   inputs.forEach(input => {
-    names.push(input.value.trim());
+
+    const filename =
+      input.dataset.filename;
+
+    const name =
+      input.value.trim();
+
+    names[filename] = name;
+
   });
 
   const code =
