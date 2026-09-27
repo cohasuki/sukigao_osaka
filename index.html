@@ -217,11 +217,11 @@ async function loadPhotos() {
         );
       })
       .map((file, index) => ({
-        id: index,
-        filename: file.name,
-        url: file.download_url,
-        name: ""
-      }));
+  id: index,
+  filename: file.name,
+  url: file.download_url,
+  name: names[index] || ""
+}));
 
     if (people.length === 0) {
       document.getElementById("loading").innerHTML =
