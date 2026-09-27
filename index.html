@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>好き顔大阪9選</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", sans-serif;
+  background: #fff7fb;
+  color: #444;
+}
+
+header {
+  text-align: center;
+  padding: 25px 15px 10px;
+}
+
+h1 {
+  margin: 0;
+  color: #d86b9c;
+  font-size: 25px;
+}
+
+#message {
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 15px;
+}
+
+#progress {
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
+  max-width: 700px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: 0.15s;
+}
+
+.card.selected {
+  border-color: #e783ad;
+  background: #fff0f6;
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+.card .number {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  padding: 4px 0;
+}
+
+button {
+  display: block;
+  margin: 18px auto 30px;
+  padding: 13px 30px;
+  border: none;
+  border-radius: 30px;
+  background: #df78a5;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #ccc;
+}
+
+#loading {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.rank {
+  max-width: 600px;
+  margin: auto;
+  padding: 10px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 15px;
+}
+
+.rank-item img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.rank-number {
+  font-size: 24px;
+  font-weight: bold;
+  width: 35px;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>♡ 好き顔大阪9選 ♡</h1>
+</header>
+
+<div id="loading">
+  写真を読み込んでいます…📸
+</div>
+
+<div id="game" class="hidden">
+
+  <div id="message"></div>
+  <div id="progress"></div>
+
+  <div id="photos" class="grid"></div>
+
+  <button id="nextButton" onclick="nextRound()">
+    選択した人で進む♡
+  </button>
+
+</div>
+
+<div id="ranking" class="hidden">
+  <h2 style="text-align:center;color:#d86b9c;">
+    ♡ 好き顔ランキング ♡
+  </h2>
+
+  <div id="rankingList" class="rank"></div>
+
+  <button onclick="location.reload()">
+    もう一度遊ぶ♡
+  </button>
+</div>
+
+<script>
+
+const OWNER = "cohasuki";
+const REPO = "sukigao_osaka";
+
+let people = [];
+let currentPeople = [];
+let selected = [];
+let round = 1;
+
+let finalPeople = [];
+let matchups = [];
+let matchupIndex = 0;
+let wins = {};
+
+/* GitHubから画像一覧を取得 */
+async function loadPhotos() {
+
+  try {
+
+    const url =
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("GitHubから写真を取得できませんでした");
+    }
+
+    const files = await response.json();
+
+    people = files
+      .filter(file => {
+        const name = file.name.toLowerCase();
+
+        return (
+          name.endsWith(".jpg") ||
+          name.endsWith(".jpeg") ||
+          name.endsWith(".png") ||
+          name.endsWith(".webp")
+        );
+      })
+      .map((file, index) => ({
+        id: index,
+        filename: file.name,
+        url: file.download_url,
+        name: ""
+      }));
+
+    if (people.length === 0) {
+      document.getElementById("loading").innerHTML =
+        "画像が見つかりませんでした🥲<br>写真の形式を確認してください。";
+      return;
+    }
+
+    startSelection();
+
+  } catch (error) {
+
+    document.getElementById("loading").innerHTML =
+      "写真の読み込みに失敗しました🥲<br>" +
+      error.message;
+  }
+}
+
+
+/* 予選開始 */
+function startSelection() {
+
+  currentPeople = shuffle([...people]);
+  round = 1;
+
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  showRound();
+}
+
+
+/* 9人ずつ表示 */
+function showRound() {
+
+  selected = [];
+
+  document.getElementById("message").innerHTML =
+    `<b>予選 ${round}回目</b><br>
+    好きな人を何人でも選んでね♡`;
+
+  document.getElementById("progress").textContent =
+    `残り ${currentPeople.length}人`;
+
+  const container = document.getElementById("photos");
+  container.innerHTML = "";
+
+  const groups = [];
+
+  for (let i = 0; i < currentPeople.length; i += 9) {
+    groups.push(currentPeople.slice(i, i + 9));
+  }
+
+  /*
+   * 今回は最初の9人だけ表示。
+   * 次へ進むたびに次の9人を表示。
+   */
+  showGroup(groups, 0);
+}
+
+
+/* グループ表示 */
+function showGroup(groups, groupIndex) {
+
+  const container = document.getElementById("photos");
+  container.innerHTML = "";
+
+  const group = groups[groupIndex];
+
+  group.forEach(person => {
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${person.url}" alt="候補">
+      <div class="number">${person.id + 1}</div>
+    `;
+
+    card.onclick = () => {
+
+      if (selected.includes(person.id)) {
+
+        selected = selected.filter(id => id !== person.id);
+        card.classList.remove("selected");
+
+      } else {
+
+        selected.push(person.id);
+        card.classList.add("selected");
+
+      }
+
+    };
+
+    container.appendChild(card);
+  });
+
+  const button = document.getElementById("nextButton");
+
+  button.onclick = () => {
+
+    /*
+     * このグループで選んだ人を保存
+     */
+    window.roundSelected =
+      (window.roundSelected || []).concat(
+        selected.map(id => people.find(p => p.id === id))
+      );
+
+    if (groupIndex + 1 < groups.length) {
+
+      selected = [];
+      showGroup(groups, groupIndex + 1);
+
+    } else {
+
+      finishSelection();
+
+    }
+
+  };
+}
+
+
+/* 1ラウンド終了 */
+function finishSelection() {
+
+  const result = window.roundSelected || [];
+  window.roundSelected = [];
+
+  /*
+   * 9人になったら最終9人
+   */
+  if (result.length === 9) {
+
+    finalPeople = result;
+    startFinal();
+
+    return;
+  }
+
+  /*
+   * 9人より多ければもう一度絞る
+   */
+  if (result.length > 9) {
+
+    currentPeople = shuffle(result);
+    round++;
+
+    showRound();
+
+    return;
+  }
+
+  /*
+   * 9人未満なら同じ候補でもう一度
+   */
+  if (result.length < 9) {
+
+    alert("9人未満だったので、もう一度選び直します♡");
+
+    currentPeople = shuffle(currentPeople);
+    round++;
+
+    showRound();
+
+  }
+}
+
+
+/* 最終9人の36試合 */
+function startFinal() {
+
+  document.getElementById("message").innerHTML =
+    "<b>最終決戦♡</b><br>どちらの顔が好き？";
+
+  document.getElementById("progress").textContent =
+    "全36回";
+
+  document.getElementById("photos").className = "grid";
+
+  document.getElementById("nextButton").classList.add("hidden");
+
+  wins = {};
+
+  finalPeople.forEach(person => {
+    wins[person.id] = 0;
+  });
+
+  matchups = [];
+
+  for (let i = 0; i < finalPeople.length; i++) {
+
+    for (let j = i + 1; j < finalPeople.length; j++) {
+
+      matchups.push([
+        finalPeople[i],
+        finalPeople[j]
+      ]);
+
+    }
+  }
+
+  matchupIndex = 0;
+
+  showMatchup();
+}
+
+
+/* 2人比較 */
+function showMatchup() {
+
+  if (matchupIndex >= matchups.length) {
+
+    showRanking();
+
+    return;
+  }
+
+  const [a, b] = matchups[matchupIndex];
+
+  document.getElementById("progress").textContent =
+    `${matchupIndex + 1} / ${matchups.length}`;
+
+  const container = document.getElementById("photos");
+
+  container.innerHTML = "";
+
+  [a, b].forEach(person => {
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${person.url}" alt="候補">
+      <div class="number">どっちが好き？</div>
+    `;
+
+    card.onclick = () => {
+
+      wins[person.id]++;
+
+      matchupIndex++;
+
+      showMatchup();
+
+    };
+
+    container.appendChild(card);
+
+  });
+}
+
+
+/* ランキング */
+function showRanking() {
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("ranking").classList.remove("hidden");
+
+  const ranking = [...finalPeople].sort(
+    (a, b) => wins[b.id] - wins[a.id]
+  );
+
+  const list = document.getElementById("rankingList");
+
+  list.innerHTML = "";
+
+  ranking.forEach((person, index) => {
+
+    const item = document.createElement("div");
+
+    item.className = "rank-item";
+
+    item.innerHTML = `
+      <div class="rank-number">${index + 1}</div>
+      <img src="${person.url}">
+      <div>
+        <b>${person.name || "名前未登録"}</b><br>
+        ${wins[person.id]}勝
+      </div>
+    `;
+
+    list.appendChild(item);
+
+  });
+}
+
+
+/* シャッフル */
+function shuffle(array) {
+
+  for (let i = array.length - 1; i > 0; i--) {
+
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [array[i], array[j]] =
+      [array[j], array[i]];
+  }
+
+  return array;
+}
+
+loadPhotos();
+
+</script>
+
+</body>
+</html>
