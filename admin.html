@@ -1,1 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>名前登録</title>
 
+<style>
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: sans-serif;
+  background: #fff7fb;
+  color: #444;
+}
+
+h1 {
+  text-align: center;
+  color: #d86b9c;
+}
+
+#list {
+  max-width: 700px;
+  margin: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+.item img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.item input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 13px 25px;
+  border: none;
+  border-radius: 30px;
+  background: #df78a5;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  height: 300px;
+  box-sizing: border-box;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>♡ 名前登録 ♡</h1>
+
+<div id="loading">
+  写真を読み込んでいます…📸
+</div>
+
+<div id="list"></div>
+
+<button onclick="makeNames()">
+  名前データを作成♡
+</button>
+
+<textarea
+  id="result"
+  placeholder="ここに作成されたデータが表示されます"
+></textarea>
+
+<script>
+
+const OWNER = "cohasuki";
+const REPO = "sukigao_osaka";
+
+let people = [];
+
+async function loadPhotos() {
+
+  const url =
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+
+  const response = await fetch(url);
+  const files = await response.json();
+
+  people = files
+    .filter(file => {
+
+      const name = file.name.toLowerCase();
+
+      return (
+        name.endsWith(".jpg") ||
+        name.endsWith(".jpeg") ||
+        name.endsWith(".png") ||
+        name.endsWith(".webp")
+      );
+
+    })
+    .sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+  const list = document.getElementById("list");
+
+  document.getElementById("loading").remove();
+
+  people.forEach((person, index) => {
+
+    const item = document.createElement("div");
+
+    item.className = "item";
+
+    item.innerHTML = `
+      <img src="${person.download_url}">
+
+      <span>${index + 1}</span>
+
+      <input
+        type="text"
+        class="personName"
+        placeholder="名前"
+        data-index="${index}"
+      >
+    `;
+
+    list.appendChild(item);
+
+  });
+
+}
+
+
+function makeNames() {
+
+  const inputs =
+    document.querySelectorAll(".personName");
+
+  const names = [];
+
+  inputs.forEach(input => {
+    names.push(input.value.trim());
+  });
+
+  const code =
+    `const names = ${JSON.stringify(names, null, 2)};`;
+
+  document.getElementById("result").value = code;
+
+}
+
+
+loadPhotos();
+
+</script>
+
+</body>
+</html>
