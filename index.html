@@ -508,12 +508,22 @@ function showGroup() {
   groupDiv.className = "group";
 
 
+  // このグループで以前選択していた人
+  const savedSelections =
+    groupSelections[currentGroupIndex] || [];
+
+
   group.forEach(person => {
 
     const card =
       document.createElement("div");
 
     card.className = "card";
+
+    // 以前選択していた人なら選択状態にする
+    if (savedSelections.includes(person)) {
+      card.classList.add("selected");
+    }
 
     card.innerHTML = `
       <img src="${person.url}">
@@ -542,6 +552,12 @@ function showGroup() {
 
       }
 
+      // 現在のグループの選択状態を保存
+      groupSelections[currentGroupIndex] =
+        selectedPeople.filter(
+          p => group.includes(p)
+        );
+
       updateStatus();
 
     });
@@ -554,6 +570,16 @@ function showGroup() {
 
   container.appendChild(groupDiv);
 
+
+  // 現在のグループの選択を復元
+  selectedPeople = [
+    ...selectedPeople.filter(
+      p => !group.includes(p)
+    ),
+    ...savedSelections
+  ];
+
+
   updateStatus();
 
 
@@ -561,6 +587,15 @@ function showGroup() {
     currentGroupIndex === groups.length - 1;
 
 
+  // 前へボタン
+  document.getElementById("prevButton")
+    .classList.toggle(
+      "hidden",
+      currentGroupIndex === 0
+    );
+
+
+  // 次へボタン
   document.getElementById("nextButton")
     .classList.toggle(
       "hidden",
@@ -568,6 +603,7 @@ function showGroup() {
     );
 
 
+  // 終了ボタン
   document.getElementById("finishButton")
     .classList.toggle(
       "hidden",
@@ -575,7 +611,6 @@ function showGroup() {
     );
 
 }
-
 
 /* =========================
    選択状況
