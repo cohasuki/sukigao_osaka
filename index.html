@@ -604,6 +604,24 @@ document.getElementById("nextButton")
 
 
 /* =========================
+   前のグループ
+========================= */
+
+document.getElementById("prevButton")
+  .addEventListener("click", () => {
+
+    if (currentGroupIndex > 0) {
+
+      currentGroupIndex--;
+
+      showGroup();
+
+    }
+
+  });
+
+
+/* =========================
    選考終了
 ========================= */
 
