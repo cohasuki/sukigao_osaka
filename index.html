@@ -955,9 +955,40 @@ function showRanking() {
     `;
 
 
-    container.appendChild(item);
+        container.appendChild(item);
 
   });
+
+
+  // 結果画面を開いたときは順位表示ON
+  let rankVisible = true;
+
+  const toggleButton =
+    document.getElementById("toggleRankButton");
+
+  toggleButton.textContent = "順位を隠す";
+
+  toggleButton.onclick = () => {
+
+    rankVisible = !rankVisible;
+
+    document.querySelectorAll(".rank-number")
+      .forEach(rank => {
+
+        rank.classList.toggle(
+          "hidden",
+          !rankVisible
+        );
+
+      });
+
+
+    toggleButton.textContent =
+      rankVisible
+        ? "順位を隠す"
+        : "順位を表示する";
+
+  };
 
 }
 
