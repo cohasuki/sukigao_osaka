@@ -868,9 +868,14 @@ function showRanking() {
 
 
   const container =
-    document.getElementById("ranking");
+  document.getElementById("ranking");
 
-  container.innerHTML = "";
+container.innerHTML = "";
+
+container.className = "rank";
+container.classList.add(
+  `rank-${ranking.length}`
+);
 
 
   /*
