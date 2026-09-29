@@ -706,7 +706,6 @@ function finishSelection() {
 
   }
 
-  // 9人未満の場合
   if (result.length < 9) {
 
     const goNext = confirm(
@@ -721,32 +720,6 @@ function finishSelection() {
     }
 
     return;
-  }
-
-}
-
-  if (result.length > 9) {
-
-    currentPeople = result;
-
-    showRound();
-
-    return;
-
-  }
-
-
-  if (result.length < 9) {
-
-    alert(
-      `現在${result.length}人です。\n9人以上になるように選んでください！`
-    );
-
-    currentPeople =
-      currentPeople;
-
-    showRound();
-
   }
 
 }
