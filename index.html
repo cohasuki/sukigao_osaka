@@ -9,10 +9,6 @@
 
 <style>
 
-/* =========================
-   基本
-========================= */
-
 body {
   font-family: sans-serif;
   background: #fff0f6;
@@ -40,16 +36,13 @@ button {
   color: white;
   font-size: 16px;
   cursor: pointer;
+
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 button:hover {
   opacity: 0.8;
-}
-
-.hidden {
-  display: none !important;
 }
 
 
@@ -107,7 +100,7 @@ button:hover {
 
 
 /* =========================
-   選択画面
+   選択状況
 ========================= */
 
 #status {
@@ -116,20 +109,53 @@ button:hover {
   font-weight: bold;
 }
 
+
+/* =========================
+   選択ボタン
+========================= */
+
+.selection-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px auto;
+}
+
+
+/* 選択を終了する */
+
 #finishButton {
   display: block;
-  margin: 15px auto 20px;
+
   min-height: 52px;
   padding: 12px 28px;
+
+  margin: 15px auto;
+
   font-size: 17px;
+  font-weight: bold;
+
   position: relative;
-  z-index: 10;
+  z-index: 100;
+
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
+
+
+/* 戻る・進む */
 
 #prevButton,
 #nextButton {
-  display: block;
-  margin: 20px auto;
+  min-height: 48px;
+  padding: 10px 24px;
+
+  margin: 10px 0;
+
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 
@@ -179,70 +205,7 @@ button:hover {
 
 
 /* =========================
-   Xなどのアプリ内ブラウザ用
-   確認ポップアップ
-========================= */
-
-.confirm-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(0, 0, 0, 0.4);
-
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.confirm-box {
-  width: min(90%, 360px);
-
-  background: white;
-  border-radius: 20px;
-
-  padding: 25px 20px;
-
-  text-align: center;
-
-  box-sizing: border-box;
-
-  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-}
-
-.confirm-box p {
-  margin: 0 0 20px;
-
-  font-size: 17px;
-  line-height: 1.6;
-}
-
-.confirm-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.confirm-buttons button {
-  min-width: 100px;
-  min-height: 48px;
-
-  border: none;
-  border-radius: 25px;
-
-  background: #f19ac5;
-  color: white;
-
-  font-size: 16px;
-  padding: 10px 18px;
-}
-
-
-/* =========================
-   結果画面
+   結果
 ========================= */
 
 .rank {
@@ -280,6 +243,7 @@ button:hover {
 
 
 /* 1位 */
+
 .rank-item.first-place .rank-number {
   color: #d4a017;
   font-size: 24px;
@@ -288,6 +252,7 @@ button:hover {
 
 
 /* 2位 */
+
 .rank-item.second-place .rank-number {
   color: #9fa4aa;
   font-size: 22px;
@@ -296,6 +261,7 @@ button:hover {
 
 
 /* 3位 */
+
 .rank-item.third-place .rank-number {
   color: #b87333;
   font-size: 22px;
@@ -308,6 +274,15 @@ button:hover {
   word-break: break-word;
 }
 
+
+/* =========================
+   共通
+========================= */
+
+.hidden {
+  display: none !important;
+}
+
 .rank-empty {
   visibility: hidden;
 }
@@ -317,36 +292,111 @@ button:hover {
    人数ごとのランキング配置
 ========================= */
 
+
 /* 1人 */
+
 .rank.rank-1 {
   grid-template-columns: repeat(3, 1fr);
   max-width: 300px;
 }
 
+
 /* 2人 */
+
 .rank.rank-2 {
   grid-template-columns: repeat(2, 1fr);
   max-width: 500px;
 }
 
+
 /* 3人 */
+
 .rank.rank-3 {
   grid-template-columns: repeat(3, 1fr);
 }
 
+
 /* 4人・6人 */
+
 .rank.rank-4,
 .rank.rank-6 {
   grid-template-columns: repeat(2, 1fr);
   max-width: 500px;
 }
 
+
 /* 5人・7人・8人・9人 */
+
 .rank.rank-5,
 .rank.rank-7,
 .rank.rank-8,
 .rank.rank-9 {
   grid-template-columns: repeat(3, 1fr);
+}
+
+
+/* =========================
+   確認ポップアップ
+========================= */
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.4);
+
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.confirm-box {
+  width: min(90%, 360px);
+
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 25px 20px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+
+.confirm-box p {
+  margin: 0 0 20px;
+
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-buttons button {
+  min-width: 100px;
+  min-height: 48px;
+
+  border-radius: 25px;
+
+  background: #f19ac5;
+
+  color: white;
+
+  font-size: 16px;
+
+  padding: 10px 18px;
 }
 
 
@@ -437,7 +487,7 @@ button:hover {
 
 
   <!--
-    いつでも押せる終了ボタン
+    ここは予選の全ページで常に表示
   -->
 
   <button id="finishButton">
@@ -448,14 +498,19 @@ button:hover {
   <div id="groups"></div>
 
 
-  <button id="prevButton" class="hidden">
-    前へ
-  </button>
+  <!-- ページ移動 -->
 
+  <div class="selection-buttons">
 
-  <button id="nextButton">
-    次へ
-  </button>
+    <button id="prevButton" class="hidden">
+      戻る
+    </button>
+
+    <button id="nextButton">
+      進む
+    </button>
+
+  </div>
 
 </div>
 
@@ -472,14 +527,12 @@ button:hover {
 
     <div class="confirm-buttons">
 
-      <!-- 順番は「戻る → 進む」 -->
+      <button id="confirmProceedButton">
+        進む
+      </button>
 
       <button id="confirmCancelButton">
         戻る
-      </button>
-
-      <button id="confirmProceedButton">
-        進む
       </button>
 
     </div>
@@ -590,14 +643,18 @@ async function loadNames() {
   const url =
     `https://${OWNER}.github.io/${REPO}/names.js?v=${Date.now()}`;
 
-  const response = await fetch(url, {
-    cache: "no-store"
-  });
+  const response =
+    await fetch(url, {
+      cache: "no-store"
+    });
 
-  const text = await response.text();
+  const text =
+    await response.text();
 
   const match =
-    text.match(/const\s+names\s*=\s*(\{[\s\S]*?\});/);
+    text.match(
+      /const\s+names\s*=\s*(\{[\s\S]*?\});/
+    );
 
   if (!match) {
 
@@ -607,9 +664,10 @@ async function loadNames() {
 
   }
 
-  names = Function(
-    `"use strict"; return (${match[1]});`
-  )();
+  names =
+    Function(
+      `"use strict"; return (${match[1]});`
+    )();
 
 }
 
@@ -623,9 +681,10 @@ async function loadPhotos() {
   const url =
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/?v=${Date.now()}`;
 
-  const response = await fetch(url, {
-    cache: "no-store"
-  });
+  const response =
+    await fetch(url, {
+      cache: "no-store"
+    });
 
   if (!response.ok) {
 
@@ -635,30 +694,35 @@ async function loadPhotos() {
 
   }
 
-  const files = await response.json();
+  const files =
+    await response.json();
 
 
-  people = files
+  people =
+    files
 
-    .filter(file =>
-      /\.(jpg|jpeg|png|webp)$/i.test(file.name)
-    )
+      .filter(file =>
+        /\.(jpg|jpeg|png|webp)$/i.test(
+          file.name
+        )
+      )
 
-    .sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )
+      .sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
 
-    .map((file, index) => ({
+      .map((file, index) => ({
 
-      id: index,
+        id: index,
 
-      filename: file.name,
+        filename: file.name,
 
-      url: file.download_url,
+        url: file.download_url,
 
-      name: names[file.name] || ""
+        name:
+          names[file.name] || ""
 
-    }));
+      }));
 
 }
 
@@ -676,11 +740,13 @@ async function init() {
     await loadPhotos();
 
 
-    document.getElementById("loading")
+    document
+      .getElementById("loading")
       .classList.add("hidden");
 
 
-    document.getElementById("startScreen")
+    document
+      .getElementById("startScreen")
       .classList.remove("hidden");
 
 
@@ -689,7 +755,9 @@ async function init() {
     console.error(error);
 
 
-    document.getElementById("loading").innerHTML =
+    document
+      .getElementById("loading")
+      .innerHTML =
 
       `<p style="text-align:center;color:red;">
         読み込みに失敗しました。<br>
@@ -705,7 +773,8 @@ async function init() {
    スタート
 ========================= */
 
-document.getElementById("start")
+document
+  .getElementById("start")
   .addEventListener(
     "click",
     startSelection
@@ -716,18 +785,23 @@ function startSelection() {
 
   currentPeople =
     [...people].sort(
-      () => Math.random() - 0.5
+      () =>
+        Math.random() - 0.5
     );
 
 
   selectedPeople = [];
 
+  groupSelections = [];
 
-  document.getElementById("startScreen")
+
+  document
+    .getElementById("startScreen")
     .classList.add("hidden");
 
 
-  document.getElementById("selectionScreen")
+  document
+    .getElementById("selectionScreen")
     .classList.remove("hidden");
 
 
@@ -737,7 +811,7 @@ function startSelection() {
 
 
 /* =========================
-   予選ラウンド
+   予選ラウンド開始
 ========================= */
 
 function showRound() {
@@ -758,13 +832,17 @@ function showRound() {
   ) {
 
     groups.push(
-      currentPeople.slice(i, i + 9)
+      currentPeople.slice(
+        i,
+        i + 9
+      )
     );
 
   }
 
 
-  document.getElementById("roundTitle")
+  document
+    .getElementById("roundTitle")
     .textContent =
       `${currentPeople.length}人から選ぶ`;
 
@@ -781,7 +859,9 @@ function showRound() {
 function showGroup() {
 
   const container =
-    document.getElementById("groups");
+    document.getElementById(
+      "groups"
+    );
 
 
   container.innerHTML = "";
@@ -792,96 +872,117 @@ function showGroup() {
 
 
   const groupDiv =
-    document.createElement("div");
-
-
-  groupDiv.className = "group";
-
-
-  const savedSelections =
-    groupSelections[currentGroupIndex] || [];
-
-
-  group.forEach(person => {
-
-    const card =
-      document.createElement("div");
-
-
-    card.className = "card";
-
-
-    if (
-      savedSelections.includes(person)
-    ) {
-
-      card.classList.add("selected");
-
-    }
-
-
-    card.innerHTML = `
-
-      <img src="${person.url}">
-
-      <div class="name">
-        ${person.name || "名前未登録"}
-      </div>
-
-    `;
-
-
-    card.addEventListener(
-      "click",
-      () => {
-
-        if (
-          selectedPeople.includes(person)
-        ) {
-
-          selectedPeople =
-            selectedPeople.filter(
-              p => p !== person
-            );
-
-
-          card.classList.remove(
-            "selected"
-          );
-
-
-        } else {
-
-          selectedPeople.push(person);
-
-
-          card.classList.add(
-            "selected"
-          );
-
-        }
-
-
-        groupSelections[
-          currentGroupIndex
-        ] =
-          selectedPeople.filter(
-            p => group.includes(p)
-          );
-
-
-        updateStatus();
-
-      }
+    document.createElement(
+      "div"
     );
 
 
-    groupDiv.appendChild(card);
+  groupDiv.className =
+    "group";
 
-  });
+
+  const savedSelections =
+    groupSelections[
+      currentGroupIndex
+    ] || [];
 
 
-  container.appendChild(groupDiv);
+  group.forEach(
+    person => {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "card";
+
+
+      if (
+        savedSelections.includes(
+          person
+        )
+      ) {
+
+        card.classList.add(
+          "selected"
+        );
+
+      }
+
+
+      card.innerHTML = `
+
+        <img src="${person.url}">
+
+        <div class="name">
+          ${person.name || "名前未登録"}
+        </div>
+
+      `;
+
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          if (
+            selectedPeople.includes(
+              person
+            )
+          ) {
+
+            selectedPeople =
+              selectedPeople.filter(
+                p => p !== person
+              );
+
+
+            card.classList.remove(
+              "selected"
+            );
+
+          } else {
+
+            selectedPeople.push(
+              person
+            );
+
+
+            card.classList.add(
+              "selected"
+            );
+
+          }
+
+
+          groupSelections[
+            currentGroupIndex
+          ] =
+            selectedPeople.filter(
+              p => group.includes(p)
+            );
+
+
+          updateStatus();
+
+        }
+      );
+
+
+      groupDiv.appendChild(
+        card
+      );
+
+    }
+  );
+
+
+  container.appendChild(
+    groupDiv
+  );
 
 
   /* =========================
@@ -903,27 +1004,44 @@ function showGroup() {
 
 
   /* =========================
-     前へ・次へだけ制御
-     
-     終了ボタンは常に表示
+     ページ移動ボタン
   ========================= */
 
+  const isFirst =
+    currentGroupIndex === 0;
+
+
   const isLast =
-    currentGroupIndex === groups.length - 1;
+    currentGroupIndex ===
+    groups.length - 1;
 
 
-  document.getElementById("prevButton")
+  /* 戻る */
+
+  document
+    .getElementById("prevButton")
     .classList.toggle(
       "hidden",
-      currentGroupIndex === 0
+      isFirst
     );
 
 
-  document.getElementById("nextButton")
+  /* 進む */
+
+  document
+    .getElementById("nextButton")
     .classList.toggle(
       "hidden",
       isLast
     );
+
+
+  /*
+    選択終了ボタンは
+    ここでは一切hiddenにしない。
+
+    予選の全ページで常に表示。
+  */
 
 }
 
@@ -934,7 +1052,8 @@ function showGroup() {
 
 function updateStatus() {
 
-  document.getElementById("status")
+  document
+    .getElementById("status")
     .textContent =
       `現在 ${selectedPeople.length}人選択中`;
 
@@ -942,27 +1061,41 @@ function updateStatus() {
 
 
 /* =========================
-   次のグループ
+   進む
 ========================= */
 
-document.getElementById("nextButton")
+document
+  .getElementById("nextButton")
   .addEventListener(
     "click",
     () => {
 
-      currentGroupIndex++;
+      if (
+        currentGroupIndex <
+        groups.length - 1
+      ) {
 
-      showGroup();
+        currentGroupIndex++;
+
+        showGroup();
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
+      }
 
     }
   );
 
 
 /* =========================
-   前のグループ
+   戻る
 ========================= */
 
-document.getElementById("prevButton")
+document
+  .getElementById("prevButton")
   .addEventListener(
     "click",
     () => {
@@ -975,6 +1108,11 @@ document.getElementById("prevButton")
 
         showGroup();
 
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
       }
 
     }
@@ -982,11 +1120,11 @@ document.getElementById("prevButton")
 
 
 /* =========================
-   選択終了ボタン
-   いつでも押せる
+   選択終了
 ========================= */
 
-document.getElementById("finishButton")
+document
+  .getElementById("finishButton")
   .addEventListener(
     "click",
     finishSelection
@@ -994,10 +1132,6 @@ document.getElementById("finishButton")
 
 
 function finishSelection() {
-
-  /* -------------------------
-     0人
-  ------------------------- */
 
   if (
     selectedPeople.length === 0
@@ -1017,9 +1151,9 @@ function finishSelection() {
     [...selectedPeople];
 
 
-  /* -------------------------
+  /* =========================
      9人ちょうど
-  ------------------------- */
+  ========================= */
 
   if (
     result.length === 9
@@ -1035,9 +1169,9 @@ function finishSelection() {
   }
 
 
-  /* -------------------------
+  /* =========================
      10人以上
-  ------------------------- */
+  ========================= */
 
   if (
     result.length > 9
@@ -1053,9 +1187,9 @@ function finishSelection() {
   }
 
 
-  /* -------------------------
+  /* =========================
      1〜8人
-  ------------------------- */
+  ========================= */
 
   if (
     result.length < 9
@@ -1074,7 +1208,7 @@ function finishSelection() {
 
 
 /* =========================
-   確認ポップアップ表示
+   確認ポップアップ
 ========================= */
 
 function showConfirmModal(
@@ -1112,30 +1246,23 @@ function showConfirmModal(
 
   if (canProceed) {
 
-    /*
-      1〜8人の場合
-
-      戻る → 選択画面
-      進む → 最終決戦
-    */
-
     proceedButton
-      .classList.remove("hidden");
+      .classList.remove(
+        "hidden"
+      );
 
-    cancelButton
-      .textContent = "戻る";
+    cancelButton.textContent =
+      "戻る";
 
   } else {
 
-    /*
-      0人の場合
-    */
-
     proceedButton
-      .classList.add("hidden");
+      .classList.add(
+        "hidden"
+      );
 
-    cancelButton
-      .textContent = "戻る";
+    cancelButton.textContent =
+      "OK";
 
   }
 
@@ -1148,50 +1275,58 @@ function showConfirmModal(
 
 
 /* =========================
-   確認画面「進む」
+   確認 → 進む
 ========================= */
 
-document.getElementById(
-  "confirmProceedButton"
-)
-.addEventListener(
-  "click",
-  () => {
+document
+  .getElementById(
+    "confirmProceedButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
 
-    finalPeople =
-      [...selectedPeople];
-
-
-    document.getElementById(
-      "confirmModal"
-    )
-    .classList.add("hidden");
+      finalPeople =
+        [...selectedPeople];
 
 
-    startFinal();
+      document
+        .getElementById(
+          "confirmModal"
+        )
+        .classList.add(
+          "hidden"
+        );
 
-  }
-);
+
+      startFinal();
+
+    }
+  );
 
 
 /* =========================
-   確認画面「戻る」
+   確認 → 戻る
 ========================= */
 
-document.getElementById(
-  "confirmCancelButton"
-)
-.addEventListener(
-  "click",
-  () => {
+document
+  .getElementById(
+    "confirmCancelButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
 
-    document.getElementById(
-      "confirmModal"
-    )
-    .classList.add("hidden");
+      document
+        .getElementById(
+          "confirmModal"
+        )
+        .classList.add(
+          "hidden"
+        );
 
-  }
-);
+    }
+  );
 
 
 /* =========================
@@ -1200,16 +1335,22 @@ document.getElementById(
 
 function startFinal() {
 
-  document.getElementById(
-    "selectionScreen"
-  )
-  .classList.add("hidden");
+  document
+    .getElementById(
+      "selectionScreen"
+    )
+    .classList.add(
+      "hidden"
+    );
 
 
-  document.getElementById(
-    "finalScreen"
-  )
-  .classList.remove("hidden");
+  document
+    .getElementById(
+      "finalScreen"
+    )
+    .classList.remove(
+      "hidden"
+    );
 
 
   wins = {};
@@ -1263,11 +1404,6 @@ function startFinal() {
 
 function showMatchup() {
 
-  /*
-    1人の場合は対戦なしで
-    そのままランキングへ
-  */
-
   if (
     currentMatchup >=
     matchups.length
@@ -1281,14 +1417,17 @@ function showMatchup() {
 
 
   const [a, b] =
-    matchups[currentMatchup];
+    matchups[
+      currentMatchup
+    ];
 
 
-  document.getElementById(
-    "progress"
-  )
-  .textContent =
-    `${currentMatchup + 1} / ${matchups.length}`;
+  document
+    .getElementById(
+      "progress"
+    )
+    .textContent =
+      `${currentMatchup + 1} / ${matchups.length}`;
 
 
   const container =
@@ -1338,7 +1477,9 @@ function showMatchup() {
       );
 
 
-      container.appendChild(card);
+      container.appendChild(
+        card
+      );
 
     }
   );
@@ -1352,16 +1493,22 @@ function showMatchup() {
 
 function showRanking() {
 
-  document.getElementById(
-    "finalScreen"
-  )
-  .classList.add("hidden");
+  document
+    .getElementById(
+      "finalScreen"
+    )
+    .classList.add(
+      "hidden"
+    );
 
 
-  document.getElementById(
-    "resultScreen"
-  )
-  .classList.remove("hidden");
+  document
+    .getElementById(
+      "resultScreen"
+    )
+    .classList.remove(
+      "hidden"
+    );
 
 
   const ranking =
@@ -1448,7 +1595,9 @@ function showRanking() {
 
 
   const layout =
-    layouts[ranking.length];
+    layouts[
+      ranking.length
+    ];
 
 
   /* =========================
@@ -1483,7 +1632,9 @@ function showRanking() {
 
 
       const person =
-        ranking[rank - 1];
+        ranking[
+          rank - 1
+        ];
 
 
       const item =
@@ -1590,9 +1741,7 @@ function showRanking() {
         );
 
 
-      /* =========================
-         順位を隠す
-      ========================= */
+      /* 順位を隠す */
 
       if (
         !rankVisible
@@ -1612,8 +1761,6 @@ function showRanking() {
             }
           );
 
-
-        /* ランダム配置 */
 
         items.sort(
           () =>
@@ -1640,9 +1787,7 @@ function showRanking() {
       }
 
 
-      /* =========================
-         順位を表示
-      ========================= */
+      /* 順位を表示 */
 
       else {
 
