@@ -211,58 +211,38 @@ button:hover {
   visibility: hidden;
 }
 
+
+/* =========================
+   人数ごとのランキング配置
+========================= */
+
+/* 1人 */
 .rank.rank-1 {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   max-width: 300px;
 }
 
+/* 2人 */
 .rank.rank-2 {
   grid-template-columns: repeat(2, 1fr);
   max-width: 500px;
 }
 
+/* 3人 */
 .rank.rank-3 {
   grid-template-columns: repeat(3, 1fr);
 }
 
+/* 4人・6人 */
 .rank.rank-4,
 .rank.rank-6 {
   grid-template-columns: repeat(2, 1fr);
   max-width: 500px;
 }
 
+/* 5人・7人・8人・9人 */
 .rank.rank-5,
 .rank.rank-7,
-.rank.rank-8,
-.rank.rank-9 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.rank.rank-1 {
-  grid-template-columns: 1fr;
-  max-width: 300px;
-}
-
-.rank.rank-2 {
-  grid-template-columns: repeat(2, 1fr);
-  max-width: 500px;
-}
-
-.rank.rank-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.rank.rank-4,
-.rank.rank-6 {
-  grid-template-columns: repeat(2, 1fr);
-  max-width: 500px;
-}
-
-.rank.rank-5,
-.rank.rank-7 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
 .rank.rank-8,
 .rank.rank-9 {
   grid-template-columns: repeat(3, 1fr);
@@ -332,12 +312,12 @@ button:hover {
   <div id="groups"></div>
 
   <button id="prevButton" class="hidden">
-  前へ
-</button>
+    前へ
+  </button>
 
-<button id="nextButton">
-  次へ
-</button>
+  <button id="nextButton">
+    次へ
+  </button>
 
   <button id="finishButton" class="hidden">
     選択を終了する
@@ -369,6 +349,7 @@ button:hover {
   </button>
 
   <div id="ranking" class="rank"></div>
+
   <button
     onclick="location.reload()"
     style="display:block;margin:25px auto;"
@@ -377,8 +358,8 @@ button:hover {
   </button>
 
   <p style="text-align:center;margin-top:35px;font-size:13px;color:#888;">
-  ※アイドルさんの悲しむポストはお控えください
-</p>
+    ※アイドルさんの悲しむポストはお控えください
+  </p>
 
 </div>
 
@@ -458,7 +439,7 @@ async function loadPhotos() {
     .filter(file =>
       /\.(jpg|jpeg|png|webp)$/i.test(file.name)
     )
-    .sort((a,b) =>
+    .sort((a, b) =>
       a.name.localeCompare(b.name)
     )
     .map((file, index) => ({
@@ -683,6 +664,7 @@ function showGroup() {
 
 }
 
+
 /* =========================
    選択状況
 ========================= */
@@ -741,28 +723,40 @@ document.getElementById("finishButton")
 function finishSelection() {
 
   if (selectedPeople.length === 0) {
+
     alert("1人以上選んでください！");
     return;
+
   }
 
   const result = selectedPeople;
 
+
+  // 9人ちょうど
   if (result.length === 9) {
 
     finalPeople = result;
+
     startFinal();
+
     return;
 
   }
 
+
+  // 10人以上
   if (result.length > 9) {
 
     currentPeople = result;
+
     showRound();
+
     return;
 
   }
 
+
+  // 1〜8人
   if (result.length < 9) {
 
     const goNext = confirm(
@@ -772,11 +766,13 @@ function finishSelection() {
     if (goNext) {
 
       finalPeople = result;
+
       startFinal();
 
     }
 
     return;
+
   }
 
 }
@@ -924,69 +920,66 @@ function showRanking() {
       );
 
 
- const container =
-  document.getElementById("ranking");
+  const container =
+    document.getElementById("ranking");
 
-container.innerHTML = "";
+  container.innerHTML = "";
 
-container.className = "rank";
-container.classList.add(
-  `rank-${ranking.length}`
-);
+  // 人数に応じたCSSクラスを設定
+  container.className = "rank";
 
-container.className = "rank";
-container.classList.add(
-  `rank-${ranking.length}`
-);
+  container.classList.add(
+    `rank-${ranking.length}`
+  );
 
 
   /*
     人数ごとの表示位置
 
     1人
-    □ □ 1 □ □
+    □ 1位 □
 
     2人
-    1 2
+    1位 2位
 
     3人
-    2 1 3
+    2位 1位 3位
 
     4人
-    1 2
-    3 4
+    1位 2位
+    3位 4位
 
     5人
-    □ 2 3
-    □ 1 □
-    □ 4 5
+    □ 2位 3位
+    □ 1位 □
+    □ 4位 5位
 
     6人
-    3 4
-    1 2
-    5 6
+    3位 4位
+    1位 2位
+    5位 6位
 
     7人
-    □ 4 5
-    2 1 3
-    □ 6 7
+    □ 4位 5位
+    2位 1位 3位
+    □ 6位 7位
 
     8人
-    3 4 5
-    □ 1 2
-    6 7 8
+    3位 4位 5位
+    □ 1位 2位
+    6位 7位 8位
 
     9人
-    4 5 6
-    2 1 3
-    7 8 9
+    4位 5位 6位
+    2位 1位 3位
+    7位 8位 9位
   */
 
 
   const layouts = {
-    
+
     1: [
-  null, 1, null
+      null, 1, null
     ],
 
     2: [
@@ -1041,6 +1034,7 @@ container.classList.add(
 
   layout.forEach(rank => {
 
+    // 空白
     if (rank === null) {
 
       const empty =
@@ -1058,6 +1052,7 @@ container.classList.add(
     const person =
       ranking[rank - 1];
 
+
     const item =
       document.createElement("div");
 
@@ -1065,19 +1060,19 @@ container.classList.add(
       "rank-item";
 
 
-    /* 1位 */
+    // 1位
     if (rank === 1) {
       item.classList.add("first-place");
     }
 
 
-    /* 2位 */
+    // 2位
     if (rank === 2) {
       item.classList.add("second-place");
     }
 
 
-    /* 3位 */
+    // 3位
     if (rank === 3) {
       item.classList.add("third-place");
     }
@@ -1130,9 +1125,12 @@ container.classList.add(
       );
 
 
+    /* =========================
+       順位を隠す
+    ========================= */
+
     if (!rankVisible) {
 
-      // 順位を隠す
       document.querySelectorAll(".rank-number")
         .forEach(rank => {
 
@@ -1147,7 +1145,7 @@ container.classList.add(
       );
 
 
-      // 空白をいったん全部削除
+      // 空白を削除
       rankingContainer.innerHTML = "";
 
 
@@ -1158,16 +1156,21 @@ container.classList.add(
       });
 
 
-    } else {
+    }
 
-      // 順位を表示
-      // → 元の人数別レイアウトに戻す
+
+    /* =========================
+       順位を表示
+    ========================= */
+
+    else {
 
       rankingContainer.innerHTML = "";
 
 
       layout.forEach(rank => {
 
+        // 空白
         if (rank === null) {
 
           const empty =
@@ -1182,6 +1185,7 @@ container.classList.add(
         }
 
 
+        // 対応する順位の人を探す
         const item =
           items.find(item => {
 
