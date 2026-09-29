@@ -897,35 +897,122 @@ function showRanking() {
 
 
   /*
-    表示順
+    人数ごとの表示位置
 
-    4位  5位  6位
-    2位  1位  3位
-    7位  8位  9位
+    1人
+    □ □ 1 □ □
+
+    2人
+    1 2
+
+    3人
+    2 1 3
+
+    4人
+    1 2
+    3 4
+
+    5人
+    □ 2 3
+    □ 1 □
+    □ 4 5
+
+    6人
+    3 4
+    1 2
+    5 6
+
+    7人
+    □ 4 5
+    2 1 3
+    □ 6 7
+
+    8人
+    3 4 5
+    □ 1 2
+    6 7 8
+
+    9人
+    4 5 6
+    2 1 3
+    7 8 9
   */
 
-  const displayOrder = [
 
-    ranking[3],
-    ranking[4],
-    ranking[5],
+  const layouts = {
 
-    ranking[1],
-    ranking[0],
-    ranking[2],
+    1: [
+      null, null, 1
+    ],
 
-    ranking[6],
-    ranking[7],
-    ranking[8]
+    2: [
+      1, 2
+    ],
 
-  ];
+    3: [
+      2, 1, 3
+    ],
+
+    4: [
+      1, 2,
+      3, 4
+    ],
+
+    5: [
+      null, 2, 3,
+      null, 1, null,
+      null, 4, 5
+    ],
+
+    6: [
+      3, 4,
+      1, 2,
+      5, 6
+    ],
+
+    7: [
+      null, 4, 5,
+      2, 1, 3,
+      null, 6, 7
+    ],
+
+    8: [
+      3, 4, 5,
+      null, 1, 2,
+      6, 7, 8
+    ],
+
+    9: [
+      4, 5, 6,
+      2, 1, 3,
+      7, 8, 9
+    ]
+
+  };
 
 
-  displayOrder.forEach(person => {
+  const layout =
+    layouts[ranking.length];
 
-    const index =
-      ranking.indexOf(person);
 
+  layout.forEach(rank => {
+
+    if (rank === null) {
+
+      const empty =
+        document.createElement("div");
+
+      empty.className = "rank-empty";
+
+      container.appendChild(empty);
+
+      return;
+
+    }
+
+
+    const person =
+      ranking[rank - 1];
 
     const item =
       document.createElement("div");
@@ -935,39 +1022,27 @@ function showRanking() {
 
 
     /* 1位 */
-    if (index === 0) {
-
-      item.classList.add(
-        "first-place"
-      );
-
+    if (rank === 1) {
+      item.classList.add("first-place");
     }
 
 
     /* 2位 */
-    if (index === 1) {
-
-      item.classList.add(
-        "second-place"
-      );
-
+    if (rank === 2) {
+      item.classList.add("second-place");
     }
 
 
     /* 3位 */
-    if (index === 2) {
-
-      item.classList.add(
-        "third-place"
-      );
-
+    if (rank === 3) {
+      item.classList.add("third-place");
     }
 
 
     item.innerHTML = `
 
       <div class="rank-number">
-        ${index + 1}位
+        ${rank}位
       </div>
 
       <img src="${person.url}">
@@ -979,7 +1054,7 @@ function showRanking() {
     `;
 
 
-        container.appendChild(item);
+    container.appendChild(item);
 
   });
 
@@ -987,96 +1062,117 @@ function showRanking() {
   // 結果画面を開いたときは順位表示ON
   let rankVisible = true;
 
+
   const toggleButton =
     document.getElementById("toggleRankButton");
 
-  toggleButton.textContent = "順位を隠す";
+
+  toggleButton.textContent =
+    "順位を隠す";
+
 
   toggleButton.onclick = () => {
 
-  rankVisible = !rankVisible;
+    rankVisible = !rankVisible;
 
-  document.querySelectorAll(".rank-number")
-    .forEach(rank => {
 
-      rank.classList.toggle(
-        "hidden",
-        !rankVisible
+    const rankingContainer =
+      document.getElementById("ranking");
+
+
+    const items =
+      Array.from(
+        document.querySelectorAll(".rank-item")
       );
 
-    });
 
+    if (!rankVisible) {
 
-  const rankingContainer =
-    document.getElementById("ranking");
+      // 順位を隠す
+      document.querySelectorAll(".rank-number")
+        .forEach(rank => {
 
-  const items =
-    Array.from(
-      document.querySelectorAll(".rank-item")
-    );
-
-
-  if (!rankVisible) {
-
-    // 順位を隠す
-    // → 9人をランダム配置
-
-    items.sort(
-      () => Math.random() - 0.5
-    );
-
-    items.forEach(item => {
-      rankingContainer.appendChild(item);
-    });
-
-
-  } else {
-
-    // 順位を表示
-    // → 4 5 6
-    //    2 1 3
-    //    7 8 9
-    // に戻す
-
-    const order = [
-      4, 5, 6,
-      2, 1, 3,
-      7, 8, 9
-    ];
-
-
-    order.forEach(rank => {
-
-      const item =
-        items.find(item => {
-
-          const number =
-            parseInt(
-              item.querySelector(
-                ".rank-number"
-              ).textContent
-            );
-
-          return number === rank;
+          rank.classList.add("hidden");
 
         });
 
 
-      if (item) {
+      // ランダム配置
+      items.sort(
+        () => Math.random() - 0.5
+      );
+
+
+      // 空白をいったん全部削除
+      rankingContainer.innerHTML = "";
+
+
+      items.forEach(item => {
+
         rankingContainer.appendChild(item);
-      }
 
-    });
-
-  }
+      });
 
 
-  toggleButton.textContent =
-    rankVisible
-      ? "順位を隠す"
-      : "順位を表示する";
+    } else {
 
-};
+      // 順位を表示
+      // → 元の人数別レイアウトに戻す
+
+      rankingContainer.innerHTML = "";
+
+
+      layout.forEach(rank => {
+
+        if (rank === null) {
+
+          const empty =
+            document.createElement("div");
+
+          empty.className = "rank-empty";
+
+          rankingContainer.appendChild(empty);
+
+          return;
+
+        }
+
+
+        const item =
+          items.find(item => {
+
+            const number =
+              parseInt(
+                item.querySelector(
+                  ".rank-number"
+                ).textContent
+              );
+
+            return number === rank;
+
+          });
+
+
+        if (item) {
+
+          item.querySelector(".rank-number")
+            .classList.remove("hidden");
+
+          rankingContainer.appendChild(item);
+
+        }
+
+      });
+
+    }
+
+
+    toggleButton.textContent =
+      rankVisible
+        ? "順位を隠す"
+        : "順位を表示する";
+
+  };
 
 }
 
