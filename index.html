@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>好き顔大阪9選</title>
 
 <style>
+
 body {
   font-family: sans-serif;
   background: #fff0f6;
@@ -33,16 +36,28 @@ button {
   color: white;
   font-size: 16px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button:hover {
   opacity: 0.8;
 }
 
+
+/* =========================
+   スタート
+========================= */
+
 #start {
   display: block;
   margin: 30px auto;
 }
+
+
+/* =========================
+   予選
+========================= */
 
 .group {
   display: grid;
@@ -82,17 +97,37 @@ button:hover {
   word-break: break-word;
 }
 
-#nextButton,
-#finishButton {
-  display: block;
-  margin: 20px auto;
-}
+
+/* =========================
+   選択ボタン
+========================= */
 
 #status {
   text-align: center;
   margin: 10px;
   font-weight: bold;
 }
+
+#prevButton,
+#nextButton {
+  display: block;
+  margin: 20px auto;
+}
+
+#finishButton {
+  display: block;
+  margin: 15px auto 20px;
+  min-height: 52px;
+  padding: 12px 28px;
+  font-size: 17px;
+  position: relative;
+  z-index: 10;
+}
+
+
+/* =========================
+   最終決戦
+========================= */
 
 .matchup {
   display: grid;
@@ -173,7 +208,7 @@ button:hover {
 }
 
 
-/* 1位：金色 */
+/* 1位 */
 .rank-item.first-place .rank-number {
   color: #d4a017;
   font-size: 24px;
@@ -181,7 +216,7 @@ button:hover {
 }
 
 
-/* 2位：銀色 */
+/* 2位 */
 .rank-item.second-place .rank-number {
   color: #9fa4aa;
   font-size: 22px;
@@ -189,13 +224,12 @@ button:hover {
 }
 
 
-/* 3位：銅色 */
+/* 3位 */
 .rank-item.third-place .rank-number {
   color: #b87333;
   font-size: 22px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-
 
 .rank-name {
   font-size: 13px;
@@ -203,31 +237,19 @@ button:hover {
   word-break: break-word;
 }
 
+
+/* =========================
+   共通
+========================= */
+
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .rank-empty {
   visibility: hidden;
 }
 
-.hidden {
-  display: none;
-}
-
-#finishButton {
-  position: relative;
-  z-index: 10;
-  min-height: 48px;
-  padding: 12px 24px;
-  margin: 15px auto 40px;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.rank-empty {
-  visibility: hidden;
-}
 
 /* =========================
    人数ごとのランキング配置
@@ -266,6 +288,73 @@ button:hover {
 }
 
 
+/* =========================
+   Xなどのアプリ内ブラウザ用
+   確認ポップアップ
+========================= */
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.4);
+
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.confirm-box {
+  width: min(90%, 360px);
+
+  background: white;
+  border-radius: 20px;
+
+  padding: 25px 20px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+
+.confirm-box p {
+  margin: 0 0 20px;
+
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-buttons button {
+  min-width: 100px;
+  min-height: 48px;
+
+  border: none;
+  border-radius: 25px;
+
+  background: #f19ac5;
+  color: white;
+
+  font-size: 16px;
+  padding: 10px 18px;
+}
+
+
+/* =========================
+   スマホ
+========================= */
+
 @media (max-width: 500px) {
 
   body {
@@ -293,19 +382,36 @@ button:hover {
   .rank-item.third-place .rank-number {
     font-size: 19px;
   }
+
 }
+
 </style>
+
 </head>
 
+
 <body>
+
 
 <h1>💗 好き顔大阪9選 💗</h1>
 
 
+<!-- =========================
+     読み込み
+========================= -->
+
 <div id="loading">
-  <p style="text-align:center;">読み込み中…</p>
+
+  <p style="text-align:center;">
+    読み込み中…
+  </p>
+
 </div>
 
+
+<!-- =========================
+     スタート画面
+========================= -->
 
 <div id="startScreen" class="hidden">
 
@@ -320,28 +426,73 @@ button:hover {
 </div>
 
 
+<!-- =========================
+     選択画面
+========================= -->
+
 <div id="selectionScreen" class="hidden">
 
   <h2 id="roundTitle"></h2>
 
   <div id="status"></div>
 
-  <div id="groups"></div>
 
-  <button id="prevButton" class="hidden">
-    前へ
-  </button>
-
-  <button id="nextButton">
-    次へ
-  </button>
+  <!--
+    終了ボタンを写真より上に移動
+    Xの画面下部にあるブラウザUIと
+    重なりにくくする
+  -->
 
   <button id="finishButton" class="hidden">
     選択を終了する
   </button>
 
+
+  <div id="groups"></div>
+
+
+  <button id="prevButton" class="hidden">
+    前へ
+  </button>
+
+
+  <button id="nextButton">
+    次へ
+  </button>
+
 </div>
 
+
+<!-- =========================
+     確認ポップアップ
+========================= -->
+
+<div id="confirmModal" class="confirm-modal hidden">
+
+  <div class="confirm-box">
+
+    <p id="confirmText"></p>
+
+    <div class="confirm-buttons">
+
+      <button id="confirmProceedButton">
+        進む
+      </button>
+
+      <button id="confirmCancelButton">
+        戻る
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     最終決戦
+========================= -->
 
 <div id="finalScreen" class="hidden">
 
@@ -354,9 +505,16 @@ button:hover {
 </div>
 
 
+<!-- =========================
+     結果
+========================= -->
+
 <div id="resultScreen" class="hidden">
 
-  <h2>🏆 あなたのタイプのお顔大阪 🏆</h2>
+  <h2>
+    🏆 あなたのタイプのお顔大阪 🏆
+  </h2>
+
 
   <button
     id="toggleRankButton"
@@ -365,7 +523,9 @@ button:hover {
     順位を隠す
   </button>
 
+
   <div id="ranking" class="rank"></div>
+
 
   <button
     onclick="location.reload()"
@@ -374,7 +534,15 @@ button:hover {
     もう一度やる
   </button>
 
-  <p style="text-align:center;margin-top:35px;font-size:13px;color:#888;">
+
+  <p
+    style="
+      text-align:center;
+      margin-top:35px;
+      font-size:13px;
+      color:#888;
+    "
+  >
     ※アイドルさんの悲しむポストはお控えください
   </p>
 
@@ -383,8 +551,18 @@ button:hover {
 
 <script>
 
+
+/* =========================
+   GitHub設定
+========================= */
+
 const OWNER = "cohasuki";
 const REPO = "sukigao_osaka";
+
+
+/* =========================
+   データ
+========================= */
 
 let names = {};
 let people = [];
@@ -395,7 +573,6 @@ let selectedPeople = [];
 let groups = [];
 let currentGroupIndex = 0;
 
-// 各グループで選択した人を保存
 let groupSelections = [];
 
 let finalPeople = [];
@@ -424,12 +601,17 @@ async function loadNames() {
     text.match(/const\s+names\s*=\s*(\{[\s\S]*?\});/);
 
   if (!match) {
-    throw new Error("names.jsの読み込みに失敗しました");
+
+    throw new Error(
+      "names.jsの読み込みに失敗しました"
+    );
+
   }
 
   names = Function(
     `"use strict"; return (${match[1]});`
   )();
+
 }
 
 
@@ -447,24 +629,38 @@ async function loadPhotos() {
   });
 
   if (!response.ok) {
-    throw new Error("GitHubから写真を取得できませんでした");
+
+    throw new Error(
+      "GitHubから写真を取得できませんでした"
+    );
+
   }
 
   const files = await response.json();
 
+
   people = files
+
     .filter(file =>
       /\.(jpg|jpeg|png|webp)$/i.test(file.name)
     )
+
     .sort((a, b) =>
       a.name.localeCompare(b.name)
     )
+
     .map((file, index) => ({
+
       id: index,
+
       filename: file.name,
+
       url: file.download_url,
+
       name: names[file.name] || ""
+
     }));
+
 }
 
 
@@ -477,24 +673,32 @@ async function init() {
   try {
 
     await loadNames();
+
     await loadPhotos();
+
 
     document.getElementById("loading")
       .classList.add("hidden");
 
+
     document.getElementById("startScreen")
       .classList.remove("hidden");
+
 
   } catch (error) {
 
     console.error(error);
 
+
     document.getElementById("loading").innerHTML =
+
       `<p style="text-align:center;color:red;">
         読み込みに失敗しました。<br>
         少し時間を置いて再読み込みしてください。
       </p>`;
+
   }
+
 }
 
 
@@ -503,23 +707,33 @@ async function init() {
 ========================= */
 
 document.getElementById("start")
-  .addEventListener("click", startSelection);
+  .addEventListener(
+    "click",
+    startSelection
+  );
 
 
 function startSelection() {
 
   currentPeople =
-    [...people].sort(() => Math.random() - 0.5);
+    [...people].sort(
+      () => Math.random() - 0.5
+    );
+
 
   selectedPeople = [];
+
 
   document.getElementById("startScreen")
     .classList.add("hidden");
 
+
   document.getElementById("selectionScreen")
     .classList.remove("hidden");
 
+
   showRound();
+
 }
 
 
@@ -537,6 +751,7 @@ function showRound() {
 
   groupSelections = [];
 
+
   for (
     let i = 0;
     i < currentPeople.length;
@@ -549,8 +764,11 @@ function showRound() {
 
   }
 
-  document.getElementById("roundTitle").textContent =
-    `${currentPeople.length}人から選ぶ`;
+
+  document.getElementById("roundTitle")
+    .textContent =
+      `${currentPeople.length}人から選ぶ`;
+
 
   showGroup();
 
@@ -566,18 +784,21 @@ function showGroup() {
   const container =
     document.getElementById("groups");
 
+
   container.innerHTML = "";
+
 
   const group =
     groups[currentGroupIndex];
 
+
   const groupDiv =
     document.createElement("div");
+
 
   groupDiv.className = "group";
 
 
-  // このグループで以前選択していた人
   const savedSelections =
     groupSelections[currentGroupIndex] || [];
 
@@ -587,49 +808,73 @@ function showGroup() {
     const card =
       document.createElement("div");
 
+
     card.className = "card";
 
-    // 以前選択していた人なら選択状態にする
-    if (savedSelections.includes(person)) {
+
+    if (
+      savedSelections.includes(person)
+    ) {
+
       card.classList.add("selected");
+
     }
 
+
     card.innerHTML = `
+
       <img src="${person.url}">
+
       <div class="name">
         ${person.name || "名前未登録"}
       </div>
+
     `;
 
 
-    card.addEventListener("click", () => {
+    card.addEventListener(
+      "click",
+      () => {
 
-      if (selectedPeople.includes(person)) {
+        if (
+          selectedPeople.includes(person)
+        ) {
 
-        selectedPeople =
-          selectedPeople.filter(
-            p => p !== person
+          selectedPeople =
+            selectedPeople.filter(
+              p => p !== person
+            );
+
+
+          card.classList.remove(
+            "selected"
           );
 
-        card.classList.remove("selected");
 
-      } else {
+        } else {
 
-        selectedPeople.push(person);
+          selectedPeople.push(person);
 
-        card.classList.add("selected");
+
+          card.classList.add(
+            "selected"
+          );
+
+        }
+
+
+        groupSelections[
+          currentGroupIndex
+        ] =
+          selectedPeople.filter(
+            p => group.includes(p)
+          );
+
+
+        updateStatus();
 
       }
-
-      // 現在のグループの選択状態を保存
-      groupSelections[currentGroupIndex] =
-        selectedPeople.filter(
-          p => group.includes(p)
-        );
-
-      updateStatus();
-
-    });
+    );
 
 
     groupDiv.appendChild(card);
@@ -640,23 +885,32 @@ function showGroup() {
   container.appendChild(groupDiv);
 
 
-  // 現在のグループの選択を復元
+  /* =========================
+     選択状態を復元
+  ========================= */
+
   selectedPeople = [
+
     ...selectedPeople.filter(
       p => !group.includes(p)
     ),
+
     ...savedSelections
+
   ];
 
 
   updateStatus();
 
 
+  /* =========================
+     ボタン表示
+  ========================= */
+
   const isLast =
     currentGroupIndex === groups.length - 1;
 
 
-  // 前へボタン
   document.getElementById("prevButton")
     .classList.toggle(
       "hidden",
@@ -664,7 +918,6 @@ function showGroup() {
     );
 
 
-  // 次へボタン
   document.getElementById("nextButton")
     .classList.toggle(
       "hidden",
@@ -672,7 +925,6 @@ function showGroup() {
     );
 
 
-  // 終了ボタン
   document.getElementById("finishButton")
     .classList.toggle(
       "hidden",
@@ -688,8 +940,9 @@ function showGroup() {
 
 function updateStatus() {
 
-  document.getElementById("status").textContent =
-    `現在 ${selectedPeople.length}人選択中`;
+  document.getElementById("status")
+    .textContent =
+      `現在 ${selectedPeople.length}人選択中`;
 
 }
 
@@ -699,13 +952,16 @@ function updateStatus() {
 ========================= */
 
 document.getElementById("nextButton")
-  .addEventListener("click", () => {
+  .addEventListener(
+    "click",
+    () => {
 
-    currentGroupIndex++;
+      currentGroupIndex++;
 
-    showGroup();
+      showGroup();
 
-  });
+    }
+  );
 
 
 /* =========================
@@ -713,21 +969,26 @@ document.getElementById("nextButton")
 ========================= */
 
 document.getElementById("prevButton")
-  .addEventListener("click", () => {
+  .addEventListener(
+    "click",
+    () => {
 
-    if (currentGroupIndex > 0) {
+      if (
+        currentGroupIndex > 0
+      ) {
 
-      currentGroupIndex--;
+        currentGroupIndex--;
 
-      showGroup();
+        showGroup();
+
+      }
 
     }
-
-  });
+  );
 
 
 /* =========================
-   選考終了
+   選択終了ボタン
 ========================= */
 
 document.getElementById("finishButton")
@@ -739,20 +1000,34 @@ document.getElementById("finishButton")
 
 function finishSelection() {
 
-  if (selectedPeople.length === 0) {
+  if (
+    selectedPeople.length === 0
+  ) {
 
-    alert("1人以上選んでください！");
+    showConfirmModal(
+      "1人以上選んでください！",
+      false
+    );
+
     return;
 
   }
 
-  const result = selectedPeople;
+
+  const result =
+    selectedPeople;
 
 
-  // 9人ちょうど
-  if (result.length === 9) {
+  /* =========================
+     9人ちょうど
+  ========================= */
 
-    finalPeople = result;
+  if (
+    result.length === 9
+  ) {
+
+    finalPeople =
+      result;
 
     startFinal();
 
@@ -761,10 +1036,16 @@ function finishSelection() {
   }
 
 
-  // 10人以上
-  if (result.length > 9) {
+  /* =========================
+     10人以上
+  ========================= */
 
-    currentPeople = result;
+  if (
+    result.length > 9
+  ) {
+
+    currentPeople =
+      result;
 
     showRound();
 
@@ -773,20 +1054,18 @@ function finishSelection() {
   }
 
 
-  // 1〜8人
-  if (result.length < 9) {
+  /* =========================
+     1〜8人
+  ========================= */
 
-    const goNext = confirm(
-      `${result.length}人選択中です。9人未満ですが次に進んでよろしいですか？`
+  if (
+    result.length < 9
+  ) {
+
+    showConfirmModal(
+      `${result.length}人選択中です。9人未満ですが次に進んでよろしいですか？`,
+      true
     );
-
-    if (goNext) {
-
-      finalPeople = result;
-
-      startFinal();
-
-    }
 
     return;
 
@@ -796,26 +1075,143 @@ function finishSelection() {
 
 
 /* =========================
+   確認ポップアップ表示
+========================= */
+
+function showConfirmModal(
+  message,
+  canProceed
+) {
+
+  const modal =
+    document.getElementById(
+      "confirmModal"
+    );
+
+
+  const text =
+    document.getElementById(
+      "confirmText"
+    );
+
+
+  const proceedButton =
+    document.getElementById(
+      "confirmProceedButton"
+    );
+
+
+  const cancelButton =
+    document.getElementById(
+      "confirmCancelButton"
+    );
+
+
+  text.textContent =
+    message;
+
+
+  if (canProceed) {
+
+    proceedButton
+      .classList.remove("hidden");
+
+    cancelButton
+      .textContent = "戻る";
+
+  } else {
+
+    proceedButton
+      .classList.add("hidden");
+
+    cancelButton
+      .textContent = "OK";
+
+  }
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+}
+
+
+/* =========================
+   「進む」
+========================= */
+
+document.getElementById(
+  "confirmProceedButton"
+)
+.addEventListener(
+  "click",
+  () => {
+
+    finalPeople =
+      [...selectedPeople];
+
+
+    document.getElementById(
+      "confirmModal"
+    )
+    .classList.add("hidden");
+
+
+    startFinal();
+
+  }
+);
+
+
+/* =========================
+   「戻る / OK」
+========================= */
+
+document.getElementById(
+  "confirmCancelButton"
+)
+.addEventListener(
+  "click",
+  () => {
+
+    document.getElementById(
+      "confirmModal"
+    )
+    .classList.add("hidden");
+
+  }
+);
+
+
+/* =========================
    最終決戦開始
 ========================= */
 
 function startFinal() {
 
-  document.getElementById("selectionScreen")
-    .classList.add("hidden");
+  document.getElementById(
+    "selectionScreen"
+  )
+  .classList.add("hidden");
 
-  document.getElementById("finalScreen")
-    .classList.remove("hidden");
+
+  document.getElementById(
+    "finalScreen"
+  )
+  .classList.remove("hidden");
 
 
   wins = {};
 
 
-  finalPeople.forEach(person => {
+  finalPeople.forEach(
+    person => {
 
-    wins[person.id] = 0;
+      wins[person.id] = 0;
 
-  });
+    }
+  );
 
 
   matchups = [];
@@ -845,6 +1241,7 @@ function startFinal() {
 
   currentMatchup = 0;
 
+
   showMatchup();
 
 }
@@ -857,7 +1254,8 @@ function startFinal() {
 function showMatchup() {
 
   if (
-    currentMatchup >= matchups.length
+    currentMatchup >=
+    matchups.length
   ) {
 
     showRanking();
@@ -871,47 +1269,64 @@ function showMatchup() {
     matchups[currentMatchup];
 
 
-  document.getElementById("progress")
-    .textContent =
+  document.getElementById(
+    "progress"
+  )
+  .textContent =
     `${currentMatchup + 1} / ${matchups.length}`;
 
 
   const container =
-    document.getElementById("matchup");
+    document.getElementById(
+      "matchup"
+    );
+
 
   container.innerHTML = "";
 
 
-  [a, b].forEach(person => {
+  [a, b].forEach(
+    person => {
 
-    const card =
-      document.createElement("div");
-
-    card.className = "match-card";
-
-
-    card.innerHTML = `
-      <img src="${person.url}">
-      <div class="match-name">
-        ${person.name || "名前未登録"}
-      </div>
-    `;
+      const card =
+        document.createElement(
+          "div"
+        );
 
 
-    card.addEventListener("click", () => {
-
-      wins[person.id]++;
-
-      currentMatchup++;
-
-      showMatchup();
-
-    });
+      card.className =
+        "match-card";
 
 
-    container.appendChild(card);
+      card.innerHTML = `
 
-  });
+        <img src="${person.url}">
+
+        <div class="match-name">
+          ${person.name || "名前未登録"}
+        </div>
+
+      `;
+
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          wins[person.id]++;
+
+          currentMatchup++;
+
+          showMatchup();
+
+        }
+      );
+
+
+      container.appendChild(card);
+
+    }
+  );
 
 }
 
@@ -922,76 +1337,48 @@ function showMatchup() {
 
 function showRanking() {
 
-  document.getElementById("finalScreen")
-    .classList.add("hidden");
+  document.getElementById(
+    "finalScreen"
+  )
+  .classList.add("hidden");
 
-  document.getElementById("resultScreen")
-    .classList.remove("hidden");
+
+  document.getElementById(
+    "resultScreen"
+  )
+  .classList.remove("hidden");
 
 
   const ranking =
     [...finalPeople]
       .sort(
         (a, b) =>
-          wins[b.id] - wins[a.id]
+          wins[b.id] -
+          wins[a.id]
       );
 
 
   const container =
-    document.getElementById("ranking");
+    document.getElementById(
+      "ranking"
+    );
+
 
   container.innerHTML = "";
 
-  // 人数に応じたCSSクラスを設定
-  container.className = "rank";
+
+  container.className =
+    "rank";
+
 
   container.classList.add(
     `rank-${ranking.length}`
   );
 
 
-  /*
-    人数ごとの表示位置
-
-    1人
-    □ 1位 □
-
-    2人
-    1位 2位
-
-    3人
-    2位 1位 3位
-
-    4人
-    1位 2位
-    3位 4位
-
-    5人
-    □ 2位 3位
-    □ 1位 □
-    □ 4位 5位
-
-    6人
-    3位 4位
-    1位 2位
-    5位 6位
-
-    7人
-    □ 4位 5位
-    2位 1位 3位
-    □ 6位 7位
-
-    8人
-    3位 4位 5位
-    □ 1位 2位
-    6位 7位 8位
-
-    9人
-    4位 5位 6位
-    2位 1位 3位
-    7位 8位 9位
-  */
-
+  /* =========================
+     人数ごとの配置
+  ========================= */
 
   const layouts = {
 
@@ -1049,195 +1436,285 @@ function showRanking() {
     layouts[ranking.length];
 
 
-  layout.forEach(rank => {
+  /* =========================
+     ランキング生成
+  ========================= */
 
-    // 空白
-    if (rank === null) {
+  layout.forEach(
+    rank => {
 
-      const empty =
-        document.createElement("div");
+      if (
+        rank === null
+      ) {
 
-      empty.className = "rank-empty";
+        const empty =
+          document.createElement(
+            "div"
+          );
 
-      container.appendChild(empty);
 
-      return;
+        empty.className =
+          "rank-empty";
+
+
+        container.appendChild(
+          empty
+        );
+
+
+        return;
+
+      }
+
+
+      const person =
+        ranking[rank - 1];
+
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+
+      item.className =
+        "rank-item";
+
+
+      if (
+        rank === 1
+      ) {
+
+        item.classList.add(
+          "first-place"
+        );
+
+      }
+
+
+      if (
+        rank === 2
+      ) {
+
+        item.classList.add(
+          "second-place"
+        );
+
+      }
+
+
+      if (
+        rank === 3
+      ) {
+
+        item.classList.add(
+          "third-place"
+        );
+
+      }
+
+
+      item.innerHTML = `
+
+        <div class="rank-number">
+          ${rank}位
+        </div>
+
+        <img src="${person.url}">
+
+        <div class="rank-name">
+          ${person.name || "名前未登録"}
+        </div>
+
+      `;
+
+
+      container.appendChild(
+        item
+      );
 
     }
+  );
 
 
-    const person =
-      ranking[rank - 1];
+  /* =========================
+     順位表示切り替え
+  ========================= */
 
-
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "rank-item";
-
-
-    // 1位
-    if (rank === 1) {
-      item.classList.add("first-place");
-    }
-
-
-    // 2位
-    if (rank === 2) {
-      item.classList.add("second-place");
-    }
-
-
-    // 3位
-    if (rank === 3) {
-      item.classList.add("third-place");
-    }
-
-
-    item.innerHTML = `
-
-      <div class="rank-number">
-        ${rank}位
-      </div>
-
-      <img src="${person.url}">
-
-      <div class="rank-name">
-        ${person.name || "名前未登録"}
-      </div>
-
-    `;
-
-
-    container.appendChild(item);
-
-  });
-
-
-  // 結果画面を開いたときは順位表示ON
   let rankVisible = true;
 
 
   const toggleButton =
-    document.getElementById("toggleRankButton");
+    document.getElementById(
+      "toggleRankButton"
+    );
 
 
   toggleButton.textContent =
     "順位を隠す";
 
 
-  toggleButton.onclick = () => {
+  toggleButton.onclick =
+    () => {
 
-    rankVisible = !rankVisible;
-
-
-    const rankingContainer =
-      document.getElementById("ranking");
+      rankVisible =
+        !rankVisible;
 
 
-    const items =
-      Array.from(
-        document.querySelectorAll(".rank-item")
-      );
+      const rankingContainer =
+        document.getElementById(
+          "ranking"
+        );
 
 
-    /* =========================
-       順位を隠す
-    ========================= */
-
-    if (!rankVisible) {
-
-      document.querySelectorAll(".rank-number")
-        .forEach(rank => {
-
-          rank.classList.add("hidden");
-
-        });
+      const items =
+        Array.from(
+          document.querySelectorAll(
+            ".rank-item"
+          )
+        );
 
 
-      // ランダム配置
-      items.sort(
-        () => Math.random() - 0.5
-      );
+      /* =========================
+         順位を隠す
+      ========================= */
 
+      if (
+        !rankVisible
+      ) {
 
-      // 空白を削除
-      rankingContainer.innerHTML = "";
+        document
+          .querySelectorAll(
+            ".rank-number"
+          )
+          .forEach(
+            rank => {
 
-
-      items.forEach(item => {
-
-        rankingContainer.appendChild(item);
-
-      });
-
-
-    }
-
-
-    /* =========================
-       順位を表示
-    ========================= */
-
-    else {
-
-      rankingContainer.innerHTML = "";
-
-
-      layout.forEach(rank => {
-
-        // 空白
-        if (rank === null) {
-
-          const empty =
-            document.createElement("div");
-
-          empty.className = "rank-empty";
-
-          rankingContainer.appendChild(empty);
-
-          return;
-
-        }
-
-
-        // 対応する順位の人を探す
-        const item =
-          items.find(item => {
-
-            const number =
-              parseInt(
-                item.querySelector(
-                  ".rank-number"
-                ).textContent
+              rank.classList.add(
+                "hidden"
               );
 
-            return number === rank;
-
-          });
-
-
-        if (item) {
-
-          item.querySelector(".rank-number")
-            .classList.remove("hidden");
-
-          rankingContainer.appendChild(item);
-
-        }
-
-      });
-
-    }
+            }
+          );
 
 
-    toggleButton.textContent =
-      rankVisible
-        ? "順位を隠す"
-        : "順位を表示する";
+        /* ランダム配置 */
 
-  };
+        items.sort(
+          () =>
+            Math.random() -
+            0.5
+        );
+
+
+        rankingContainer.innerHTML =
+          "";
+
+
+        items.forEach(
+          item => {
+
+            rankingContainer
+              .appendChild(
+                item
+              );
+
+          }
+        );
+
+      }
+
+
+      /* =========================
+         順位を表示
+      ========================= */
+
+      else {
+
+        rankingContainer.innerHTML =
+          "";
+
+
+        layout.forEach(
+          rank => {
+
+            if (
+              rank === null
+            ) {
+
+              const empty =
+                document.createElement(
+                  "div"
+                );
+
+
+              empty.className =
+                "rank-empty";
+
+
+              rankingContainer
+                .appendChild(
+                  empty
+                );
+
+
+              return;
+
+            }
+
+
+            const item =
+              items.find(
+                item => {
+
+                  const number =
+                    parseInt(
+                      item
+                        .querySelector(
+                          ".rank-number"
+                        )
+                        .textContent
+                    );
+
+
+                  return (
+                    number === rank
+                  );
+
+                }
+              );
+
+
+            if (item) {
+
+              item
+                .querySelector(
+                  ".rank-number"
+                )
+                .classList.remove(
+                  "hidden"
+                );
+
+
+              rankingContainer
+                .appendChild(
+                  item
+                );
+
+            }
+
+          }
+        );
+
+      }
+
+
+      toggleButton.textContent =
+        rankVisible
+          ? "順位を隠す"
+          : "順位を表示する";
+
+    };
 
 }
 
