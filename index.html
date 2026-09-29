@@ -680,26 +680,46 @@ document.getElementById("finishButton")
 function finishSelection() {
 
   if (selectedPeople.length === 0) {
-
     alert("1人以上選んでください！");
     return;
-
   }
 
-
   const result = selectedPeople;
-
 
   if (result.length === 9) {
 
     finalPeople = result;
-
     startFinal();
-
     return;
 
   }
 
+  if (result.length > 9) {
+
+    currentPeople = result;
+    showRound();
+    return;
+
+  }
+
+  // 9人未満の場合
+  if (result.length < 9) {
+
+    const goNext = confirm(
+      `${result.length}人で、9人未満ですが次に進んでよろしいですか？`
+    );
+
+    if (goNext) {
+
+      finalPeople = result;
+      startFinal();
+
+    }
+
+    return;
+  }
+
+}
 
   if (result.length > 9) {
 
