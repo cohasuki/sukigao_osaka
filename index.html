@@ -970,27 +970,89 @@ function showRanking() {
 
   toggleButton.onclick = () => {
 
-    rankVisible = !rankVisible;
+  rankVisible = !rankVisible;
 
-    document.querySelectorAll(".rank-number")
-      .forEach(rank => {
+  document.querySelectorAll(".rank-number")
+    .forEach(rank => {
 
-        rank.classList.toggle(
-          "hidden",
-          !rankVisible
-        );
+      rank.classList.toggle(
+        "hidden",
+        !rankVisible
+      );
 
-      });
+    });
 
 
-    toggleButton.textContent =
-      rankVisible
-        ? "順位を隠す"
-        : "順位を表示する";
+  const rankingContainer =
+    document.getElementById("ranking");
 
-  };
+  const items =
+    Array.from(
+      document.querySelectorAll(".rank-item")
+    );
 
-}
+
+  if (!rankVisible) {
+
+    // 順位を隠す
+    // → 9人をランダム配置
+
+    items.sort(
+      () => Math.random() - 0.5
+    );
+
+    items.forEach(item => {
+      rankingContainer.appendChild(item);
+    });
+
+
+  } else {
+
+    // 順位を表示
+    // → 4 5 6
+    //    2 1 3
+    //    7 8 9
+    // に戻す
+
+    const order = [
+      4, 5, 6,
+      2, 1, 3,
+      7, 8, 9
+    ];
+
+
+    order.forEach(rank => {
+
+      const item =
+        items.find(item => {
+
+          const number =
+            parseInt(
+              item.querySelector(
+                ".rank-number"
+              ).textContent
+            );
+
+          return number === rank;
+
+        });
+
+
+      if (item) {
+        rankingContainer.appendChild(item);
+      }
+
+    });
+
+  }
+
+
+  toggleButton.textContent =
+    rankVisible
+      ? "順位を隠す"
+      : "順位を表示する";
+
+};
 
 
 /* =========================
