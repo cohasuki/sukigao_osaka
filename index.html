@@ -211,6 +211,36 @@ button:hover {
   visibility: hidden;
 }
 
+.rank.rank-1 {
+  grid-template-columns: 1fr;
+  max-width: 300px;
+}
+
+.rank.rank-2 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 500px;
+}
+
+.rank.rank-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.rank.rank-4,
+.rank.rank-6 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 500px;
+}
+
+.rank.rank-5,
+.rank.rank-7 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.rank.rank-8,
+.rank.rank-9 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 
 @media (max-width: 500px) {
 
